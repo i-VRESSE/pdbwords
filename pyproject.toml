@@ -27,6 +27,7 @@ pdbwords = "pdbwords:main"
 
 [dependency-groups]
 dev = [
+    "molviewspec>=1.8.1",
     "pytest>=8.3",
 ]
 
@@ -38,7 +39,7 @@ packages = ["pdbwords_assets"]
 pdbwords_assets = "letters"
 
 [tool.setuptools.package-data]
-pdbwords_assets = ["*.jpg", "*.png"]
+pdbwords_assets = ["*.jpg", "*.png", "*.json"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

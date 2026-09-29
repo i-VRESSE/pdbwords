@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import shutil
 import tempfile
 import urllib.request
@@ -38,6 +39,12 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=Path("letters"),
         help="PNG destination (default: letters)",
+    )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("letters/manifest.json"),
+        help="shared letter geometry manifest",
     )
     parser.add_argument(
         "--letters",
@@ -127,7 +134,7 @@ def trim_and_resize(source: Path, destination: Path, height: int, padding: int) 
     cropped = image.crop((left, top, right, bottom))
     width = max(1, round(cropped.width * height / cropped.height))
     resized = cropped.resize((width, height), Image.Resampling.LANCZOS)
-    resized.save(destination, optimize=True, compress_level=9, dpi=(300, 300))
+    resized.save(destination, compress_level=6, dpi=(300, 300))
     resized.close()
     cropped.close()
     image.close()
@@ -140,6 +147,7 @@ def render_letters(
     render_size: int,
     height: int,
     padding_fraction: float,
+    manifest: dict,
 ) -> None:
     output_directory.mkdir(parents=True, exist_ok=True)
     padding = round(render_size * padding_fraction)
@@ -156,15 +164,23 @@ def render_letters(
             print(f"Rendering {letter} -> {final_output}")
             cmd.reinitialize()
             cmd.load(str(session))
+            expected_pdb_id = manifest["letters"][letter]["pdb_id"].lower()
+            enabled_objects = {
+                name.lower() for name in cmd.get_names("objects", enabled_only=1)
+            }
+            if expected_pdb_id not in enabled_objects:
+                raise ValueError(
+                    f"{session} does not contain expected object {expected_pdb_id}"
+                )
             cmd.set("ray_opaque_background", 0)
             cmd.set("antialias", 2)
             cmd.ray(render_size, render_size)
             cmd.png(str(raw_output), quiet=1)
             trim_and_resize(raw_output, final_output, height, padding)
 
-    space_width = round(height * 169 / 250)
+    space_width = round(height * manifest["space_advance"] / manifest["cap_height"])
     Image.new("RGBA", (space_width, height), (255, 255, 255, 0)).save(
-        output_directory / "_.png", optimize=True, compress_level=9, dpi=(300, 300)
+        output_directory / "_.png", compress_level=6, dpi=(300, 300)
     )
 
 
@@ -177,6 +193,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
         raise ValueError("--render-size and --height must be positive")
     if not 0 <= args.padding < 0.5:
         raise ValueError("--padding must be between 0 and 0.5")
+    with args.manifest.open(encoding="utf-8") as stream:
+        manifest = json.load(stream)
+    if any(letter not in manifest["letters"] for letter in letters):
+        raise ValueError("The manifest does not define every requested letter")
 
     archive = args.sessions or download_archive(Path("build/AlphabetPDB.zip"))
     with tempfile.TemporaryDirectory(prefix="pdbwords-sessions-") as temporary:
@@ -188,6 +208,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
             args.render_size,
             args.height,
             args.padding,
+            manifest,
         )
     return 0
 
