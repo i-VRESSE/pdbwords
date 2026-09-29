@@ -1,0 +1,63 @@
+# See https://ai-declaration.org/ for more information.
+schema_version: 1.0.0
+project:
+  name: pdbwords
+  version: 0.2.0
+  repository: https://github.com/i-VRESSE/pdbwords
+  license: GPL-3.0-or-later
+  content_type: software
+ai_usage:
+  used: true
+  summary: >-
+    The original implementation and all repository history before the
+    2026-09-29 modernization were created without AI assistance. OpenCode was
+    used for the modernization from that date onward, with human review.
+  level: significant
+  activities:
+    - code_generation
+    - code_review
+    - documentation
+    - testing
+    - refactoring
+  ai_proportion:
+    qualitative: mostly_human
+  scope:
+    code_completion: false
+    code_review: true
+    code_generation: true
+    documentation: true
+    refactoring: true
+  tools:
+    - name: OpenCode
+      type: agent
+      hosting: cloud_vendor
+      period:
+        start: "2026-09-29"
+      purpose:
+        - code generation
+        - code review
+        - documentation
+        - refactoring
+        - testing and packaging verification
+  components:
+    - name: Original project and repository history
+      description: >-
+        The original 2015 implementation, alphabet images, and all commits
+        predating the 2026-09-29 modernization.
+      ai_involvement: none
+      tools_used: []
+      notes: Created without AI assistance.
+    - name: Modern Python rewrite
+      description: >-
+        Pillow rendering, uv packaging, tests, metadata, documentation, and
+        publication setup introduced from 2026-09-29 onward.
+      ai_involvement: significant, with human review
+      tools_used:
+        - OpenCode
+declaration:
+  declared_by: Stefan Verhoeven
+  date: "2026-09-29"
+  notes: >-
+    This declaration is not retroactive. Commits before the modernization on
+    2026-09-29 were human-authored without AI assistance; the declared AI use
+    applies only to modernization work from that date onward.

@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdbwords"
+version = "0.2.0"
+description = "Write text using Mark Howarth's protein alphabet"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE", "ASSET_LICENSE.md"]
+authors = [
+    { name = "Kresten Lindorff-Larsen" },
+    { name = "Stefan Verhoeven" },
+]
+dependencies = [
+    "pillow>=11.0",
+]
+
+[project.urls]
+Homepage = "https://www.howarthgroup.org/alphabet"
+Repository = "https://github.com/i-VRESSE/pdbwords"
+
+[project.scripts]
+pdbwords = "pdbwords:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+]
+
+[tool.setuptools]
+py-modules = ["pdbwords"]
+packages = ["pdbwords_assets"]
+
+[tool.setuptools.package-dir]
+pdbwords_assets = "letters"
+
+[tool.setuptools.package-data]
+pdbwords_assets = ["*.jpg", "*.png"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
