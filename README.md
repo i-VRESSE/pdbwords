@@ -198,6 +198,24 @@ The image builder checks each session against this manifest. The static and 3D
 renderers use the same proportional spacing metadata, while the 3D renderer also
 applies the saved rotations and projected centering.
 
+### Searching for digit structures
+
+Digits require separately curated structures and viewing angles. The maintainer
+[digit-search workflow](docs/digit-search.md) downloads a cached pilot dataset,
+ranks normalized silhouettes (with an optional local CLIP comparison), generates
+contact sheets, and measures rankings against human reviews:
+
+```console
+uv run --script scripts/digit_search.py collect --count 10 --workers 2
+uv run --script scripts/digit_search.py rank
+uv run --script scripts/digit_search.py sheets --top 12
+```
+
+Start with the small pilot and review its results before expanding the search.
+Downloads are reused on subsequent runs; `--offline` verifies cache-only use.
+Digit input remains unsupported until reviewed definitions and matching static
+and 3D assets are available.
+
 ## Background and license
 
 Mark Howarth describes the alphabet, its protein structures, and the original
