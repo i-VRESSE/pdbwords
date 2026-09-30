@@ -16,12 +16,36 @@ ImageMagick is no longer required.
 uv run pdbwords image Just write your text here
 ```
 
+For example, turn a short message for the life-sciences community into a
+shareable protein word:
+
+```console
+uv run pdbwords image --output ai4ls.png AI FOR LS
+```
+
+![Protein structures arranged as the words "AI FOR LS" in rainbow colors](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/ai4ls.png)
+
 The result is written to `proteinword.jpg`. Choose another output path, line
 length, or letter height with:
 
 ```console
 uv run pdbwords image --output message.png --max-chars 20 --height 500 Hello protein world!
 ```
+
+Four PyMOL rendering themes are bundled. Select one with `--theme`:
+
+```console
+uv run pdbwords image --theme tube Hello protein world!
+```
+
+Each preview renders the same word, `PROTEIN`:
+
+| Theme | Preview |
+| --- | --- |
+| `classic` | ![PROTEIN rendered with the classic PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-classic.png) |
+| `loop` | ![PROTEIN rendered with the loop PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-loop.png) |
+| `oval` | ![PROTEIN rendered with the oval PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-oval.png) |
+| `tube` | ![PROTEIN rendered with the tube PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-tube.png) |
 
 For an interactive 3D word, create a MolViewSpec file and open it in a
 [MolViewSpec-compatible viewer](https://molviewspec.github.io/):
@@ -63,6 +87,51 @@ metadata. JPEG files store the same provenance in their EXIF description and
 software fields. The PDB mapping follows the A-Z table on the Howarth alphabet
 page and lists each letter used in the image.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    input["Text and CLI options"] --> cli["CLI and application logic<br/>src/pdbwords/__init__.py"]
+    cli --> layout["Validate and wrap text<br/>words_to_lines()"]
+
+    subgraph static["Static image pipeline"]
+        image["image command"] --> pillow["Pillow tile composition"]
+        assets["Packaged assets<br/>src/pdbwords/assets/"] --> pillow
+        pillow --> raster["PNG or JPEG<br/>with provenance metadata"]
+    end
+
+    subgraph interactive["Interactive 3D pipeline"]
+        mvs["mvs command"] --> scene["MolViewSpec scene builder"]
+        manifest["assets/manifest.json<br/>PDB IDs, chains, views, spacing"]
+        manifest --> scene
+        scene --> mvsfile["MVSJ or MVSX scene"]
+        mvsfile --> viewer["MolViewSpec-compatible viewer"]
+        rcsb["RCSB PDB BinaryCIF service"]
+        scene -. "downloads coordinates with --offline" .-> rcsb
+        viewer -. "follows online coordinate references" .-> rcsb
+    end
+
+    cli --> image
+    cli --> mvs
+    layout --> image
+    layout --> mvs
+    assets --> manifest
+
+    subgraph maintenance["Maintainer-only asset generation"]
+        sessions["Official Howarth PyMOL sessions"] --> extract["src/extract_manifest.py"]
+        assets -. "supplies tile width ratios" .-> extract
+        extract --> manifest
+        render["src/pdbwords/build_letters.py<br/>headless PyMOL and Pillow"]
+        sessions --> render
+        manifest --> render
+        render --> assets
+    end
+```
+
+The installed command needs only Pillow and the packaged assets. PyMOL is
+isolated to the maintainer scripts that regenerate those assets; it is not part
+of either runtime pipeline.
+
 ## Development
 
 Install all dependencies and run the test suite:
@@ -85,35 +154,44 @@ depend on files from this repository.
 
 ### Rebuilding the letters
 
-The legacy JPEG tiles are only 250 pixels high. The Howarth Lab also publishes
-the original A-Z PyMOL sessions, which preserve the molecular assemblies,
-representations, colors, and camera views. Rebuild them as 1000-pixel-high,
-transparent, lossless PNGs with:
+The Howarth Lab publishes the original A-Z PyMOL sessions, which preserve the
+molecular assemblies, representations, colors, and camera views. Rebuild the
+classic theme as 1000-pixel-high, transparent, lossless PNGs with:
 
 ```console
-uv run --python 3.11 scripts/build_letters.py
+uv run --script src/pdbwords/build_letters.py
 ```
 
 The script downloads the official session archive, verifies its SHA-256 digest,
 ray-traces every letter in headless PyMOL, trims transparent margins, and writes
-`letters/a.png` through `letters/z.png` plus a transparent space tile. Use
-`--sessions AlphabetPDB.zip` to supply an existing archive, or inspect all
-options with `--help`. PyMOL is isolated as a script dependency and is not
-installed with `pdbwords` or required at runtime.
+`src/pdbwords/assets/a.png` through `src/pdbwords/assets/z.png` plus a transparent
+space tile. Use `--sessions AlphabetPDB.zip` to supply an existing archive, or
+inspect all options with `--help`. PyMOL is included in the development
+dependency group and the script's isolated dependencies, but is not installed
+with `pdbwords` or required at runtime.
+
+Regenerate a complete alternative theme with, for example:
+
+```console
+uv run --script src/pdbwords/build_letters.py --theme tube
+```
+
+Alternative themes are written below `src/pdbwords/assets/themes/`. Use
+`--letters` to regenerate a subset of the alphabet.
 
 PNG is used as the master format because it is lossless and supports alpha
 transparency. Lossless WebP can be smaller, but would add a conversion step and
 has less universal tooling support; JPEG cannot preserve transparency and adds
-artifacts around fine cartoon edges. When present, PNG tiles take precedence
-over the bundled legacy JPEGs. PNG word output preserves transparency, while
-JPEG word output is flattened onto white.
+artifacts around fine cartoon edges. PNG word output preserves transparency,
+while JPEG word output is flattened onto white.
 
-The shared `letters/manifest.json` records the source PDB IDs, enabled chains,
-residue ranges, saved camera rotations, projected bounds, and visual spacing.
-Regenerate it directly from the official sessions with:
+The shared `src/pdbwords/assets/manifest.json` records the source PDB IDs,
+enabled chains, residue ranges, saved camera rotations, projected bounds, and
+visual spacing. Regenerate its letter geometry directly from the official
+sessions with:
 
 ```console
-uv run --python 3.11 scripts/extract_manifest.py --sessions AlphabetPDB.zip
+uv run --python 3.11 src/extract_manifest.py --sessions AlphabetPDB.zip
 ```
 
 The image builder checks each session against this manifest. The static and 3D

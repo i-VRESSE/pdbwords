@@ -1,7 +1,9 @@
 import json
+import string
 import zipfile
 from pathlib import Path
 
+import pytest
 from molviewspec import validate_state_tree
 from PIL import Image
 
@@ -26,8 +28,16 @@ def test_explicit_line_break_can_create_a_blank_line() -> None:
 def test_unknown_character_uses_space(capsys) -> None:
     directory = pdbwords.alphabet_directory()
 
-    assert pdbwords.letter_path("@", directory) == directory / "_.jpg"
+    assert pdbwords.letter_path("@", directory) == directory / "_.png"
     assert "Unknown character '@'" in capsys.readouterr().err
+
+
+def test_digits_are_rejected_by_rendering_apis(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match=r"Digits are not supported: '2', '4'"):
+        pdbwords.make_image(["42"], tmp_path / "digits.png")
+
+    with pytest.raises(ValueError, match=r"Digits are not supported: '2', '4'"):
+        pdbwords.molviewspec_state(["42"])
 
 
 def test_make_image_composes_tiles_without_temporary_files(tmp_path: Path) -> None:
@@ -36,8 +46,8 @@ def test_make_image_composes_tiles_without_temporary_files(tmp_path: Path) -> No
     pdbwords.make_image(["ab", "xLBx", "c"], output)
 
     with Image.open(output) as image:
-        assert image.mode == "RGB"
-        assert image.size == (443, 500)
+        assert image.mode == "RGBA"
+        assert image.size == (450, 500)
         assert image.info["Software"].startswith("pdbwords 0.2.0; Pillow")
         assert image.info["PDB IDs"] == "A=3IFZ, B=2QYC, C=2BNH"
     assert list(tmp_path.iterdir()) == [output]
@@ -71,7 +81,28 @@ def test_make_image_scales_letter_height(tmp_path: Path) -> None:
     pdbwords.make_image(["ab"], output, height=100)
 
     with Image.open(output) as image:
-        assert image.size == (177, 100)
+        assert image.size == (180, 100)
+
+
+def test_all_themes_include_complete_high_resolution_alphabets() -> None:
+    expected = {"_.png", *(f"{letter}.png" for letter in string.ascii_lowercase)}
+
+    for theme in pdbwords.THEMES:
+        directory = pdbwords.alphabet_directory(theme)
+        assert expected <= {path.name for path in directory.glob("*.png")}
+        for name in expected:
+            with Image.open(directory / name) as image:
+                assert image.format == "PNG"
+                assert image.height == 1000
+
+
+def test_themes_share_classic_punctuation_assets() -> None:
+    assets = pdbwords.alphabet_directory()
+
+    for theme in pdbwords.THEMES[1:]:
+        assert pdbwords.letter_path(":", pdbwords.alphabet_directory(theme)) == (
+            assets / "colon.png"
+        )
 
 
 def test_molviewspec_reuses_repeated_letter_structures() -> None:
@@ -92,6 +123,29 @@ def test_molviewspec_reuses_repeated_letter_structures() -> None:
     assert len(instances) == 2
     assert all(len(instance["params"]["matrix"]) == 16 for instance in instances)
     validate_state_tree(json.dumps(state))
+
+
+def test_cli_reports_unsupported_digits(tmp_path: Path, capsys) -> None:
+    output = tmp_path / "42.png"
+    result = pdbwords.main(["image", "-o", str(output), "42"])
+
+    assert result == 1
+    assert capsys.readouterr().err == "pdbwords: Digits are not supported: '2', '4'\n"
+    assert not output.exists()
+
+
+def test_themes_are_validated_and_exposed_by_cli() -> None:
+    args = pdbwords.parse_args(["image", "--theme", "tube", "Hello"])
+
+    assert args.theme == "tube"
+    assert pdbwords.validate_theme("oval") == "oval"
+
+    try:
+        pdbwords.validate_theme("unknown")
+    except ValueError as error:
+        assert "choose from classic, loop, oval, tube" in str(error)
+    else:
+        raise AssertionError("invalid theme was accepted")
 
 
 def test_make_online_mvsx(tmp_path: Path) -> None:

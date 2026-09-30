@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.12.20,<0.13"]
+build-backend = "uv_build"
 
 [project]
 name = "pdbwords"
@@ -28,19 +28,21 @@ pdbwords = "pdbwords:main"
 [dependency-groups]
 dev = [
     "molviewspec>=1.8.1",
+    "pymol-open-source==3.2.0a0; python_version < '3.14'",
     "pytest>=8.3",
+    "ruff>=0.13",
+    "ty>=0.0.1a21",
 ]
-
-[tool.setuptools]
-py-modules = ["pdbwords"]
-packages = ["pdbwords_assets"]
-
-[tool.setuptools.package-dir]
-pdbwords_assets = "letters"
-
-[tool.setuptools.package-data]
-pdbwords_assets = ["*.jpg", "*.png", "*.json"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+
+[tool.ruff]
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.ty.src]
+include = ["src"]
