@@ -85,7 +85,10 @@ def session_metadata(session: Path, image_directory: Path, letter: str) -> dict:
         raise ValueError(f"Expected one enabled molecule in {session}, found {objects}")
 
     object_name = objects[0]
-    model = cmd.get_model(f"{object_name} and polymer.protein")
+    # Several official sessions hide whole chains to form a letter (notably D,
+    # E, and O). Their coordinates still exist in the loaded molecule. Extract
+    # the displayed cartoon rather than every protein chain in that object.
+    model = cmd.get_model(f"{object_name} and polymer.protein and rep cartoon")
     view = cmd.get_view()
     rotation = list(view[:9])
     transformed = [transform_coordinate(atom.coord, rotation) for atom in model.atom]

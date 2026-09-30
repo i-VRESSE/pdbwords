@@ -212,3 +212,9 @@ Howarth's copyright and non-commercial-use terms; see
 The use of AI assistance in modernizing this project is documented in
 [`aidecl.yml`](aidecl.yml), following the [AI Declaration](https://ai-declaration.org/)
 schema.
+
+## Browser app
+
+The static TypeScript/Mol* app is in [`web/`](web/README.md). It supports
+interactive protein words, normalized word PNGs, scene screenshots, and
+MolViewSpec downloads. See the web README for development and Pages deployment.

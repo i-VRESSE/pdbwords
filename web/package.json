@@ -1,0 +1,28 @@
+{
+  "name": "pdbwords-web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "check": "vp check",
+    "test": "vp test run",
+    "build": "vp build",
+    "test:browser": "playwright test",
+    "measure:coordinates": "node scripts/measure-coordinates.mjs"
+  },
+  "dependencies": {
+    "molstar": "5.12.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.19.15",
+    "typescript": "5.9.3",
+    "vite-plus": "1.0.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "packageManager": "pnpm@12.4.1"
+}
