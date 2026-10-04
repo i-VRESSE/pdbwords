@@ -448,7 +448,10 @@ class Progress:
 
 
 def clip_scores(
-    pairs: list[tuple[Image.Image, Image.Image]], model_name: str, offline: bool
+    pairs: list[tuple[Image.Image, Image.Image]],
+    model_name: str,
+    offline: bool,
+    batch_size: int = 32,
 ) -> list[dict[str, dict[str, float]]]:
     """Optional local CLIP comparison, with no captions and no softmax probabilities."""
     print(f"Loading vision model: {model_name}", flush=True)
@@ -459,7 +462,13 @@ def clip_scores(
         raise ValueError(
             "Vision ranking requires torch and transformers; see docs/digit-search.md"
         ) from error
-    model = CLIPModel.from_pretrained(model_name, local_files_only=offline).eval()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = (
+        CLIPModel.from_pretrained(model_name, local_files_only=offline)
+        .eval()
+        .to(device)
+    )
+    print(f"Vision device: {device}; batch size: {batch_size}", flush=True)
     processor = CLIPProcessor.from_pretrained(model_name, local_files_only=offline)
     prompts = [
         f"a protein cartoon shaped like the {'digit' if label.isdigit() else 'letter'} {label}"
@@ -470,24 +479,84 @@ def clip_scores(
     result = []
     progress = Progress("Vision scoring", len(pairs))
     with torch.inference_mode():
-        for index, (cartoon, mask) in enumerate(pairs, 1):
-            silhouette = ImageOps.invert(mask).convert("RGB")
-            inputs = processor(
-                text=prompts,
-                images=[cartoon, silhouette],
-                return_tensors="pt",
-                padding=True,
-            )
-            scores = model(**inputs).logits_per_image.tolist()
-            result.append(
-                {
-                    variant: dict(zip(LABELS, values, strict=True))
-                    for variant, values in zip(
-                        ("cartoon", "silhouette"), scores, strict=True
+        text_inputs = processor(text=prompts, return_tensors="pt", padding=True).to(
+            device
+        )
+        text_features = model.get_text_features(**text_inputs)
+        if not isinstance(text_features, torch.Tensor):
+            text_features = text_features.pooler_output
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        # Image references avoid relying solely on CLIP's weak numeral prompts.
+        glyph_images, glyph_labels = [], []
+        fonts = [ImageFont.load_default(size=90)]
+        for name in ("DejaVuSans.ttf", "DejaVuSansMono.ttf", "DejaVuSerif.ttf"):
+            try:
+                fonts.append(ImageFont.truetype(name, 90))
+            except OSError:
+                pass
+        for label in LABELS[:-1]:
+            for font in fonts:
+                image = Image.new("RGB", (160, 160), "white")
+                ImageDraw.Draw(image).text((25, 10), label, font=font, fill="black")
+                _, mask = normalize(image)
+                for width in (3, 7, 11):
+                    glyph_images.append(
+                        ImageOps.invert(
+                            mask.filter(ImageFilter.MaxFilter(width))
+                        ).convert("RGB")
                     )
-                }
+                    glyph_labels.append(label)
+        glyph_features = []
+        for start in range(0, len(glyph_images), batch_size * 2):
+            inputs = processor(
+                images=glyph_images[start : start + batch_size * 2], return_tensors="pt"
+            ).to(device)
+            features = model.get_image_features(**inputs)
+            if not isinstance(features, torch.Tensor):
+                features = features.pooler_output
+            glyph_features.append(features / features.norm(dim=-1, keepdim=True))
+        glyph_features = torch.cat(glyph_features)
+        for start in range(0, len(pairs), batch_size):
+            batch = pairs[start : start + batch_size]
+            images = [
+                image
+                for cartoon, mask in batch
+                for image in (cartoon, ImageOps.invert(mask).convert("RGB"))
+            ]
+            inputs = processor(images=images, return_tensors="pt").to(device)
+            image_features = model.get_image_features(**inputs)
+            if not isinstance(image_features, torch.Tensor):
+                image_features = image_features.pooler_output
+            image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+            scores = (
+                (model.logit_scale.exp() * image_features @ text_features.T)
+                .cpu()
+                .tolist()
             )
-            progress.update(index)
+            similarities = (image_features @ glyph_features.T).cpu().tolist()
+            for offset in range(0, len(scores), 2):
+                glyph_scores = {
+                    label: max(
+                        value
+                        for reference_label, value in zip(
+                            glyph_labels, similarities[offset + 1], strict=True
+                        )
+                        if reference_label == label
+                    )
+                    for label in LABELS[:-1]
+                }
+                result.append(
+                    {
+                        variant: dict(zip(LABELS, values, strict=True))
+                        for variant, values in zip(
+                            ("cartoon", "silhouette"),
+                            scores[offset : offset + 2],
+                            strict=True,
+                        )
+                    }
+                    | {"glyph": glyph_scores}
+                )
+            progress.update(min(start + batch_size, len(pairs)))
     return result
 
 
@@ -526,6 +595,7 @@ def rank(args: argparse.Namespace) -> None:
         ):
             record["vision_cartoon"] = scores["cartoon"]
             record["vision_silhouette"] = scores["silhouette"]
+            record["vision_glyph"] = scores["glyph"]
     print(f"Writing rankings to {root / 'rankings.json'}", flush=True)
     write_json(
         root / "rankings.json",
@@ -535,6 +605,9 @@ def rank(args: argparse.Namespace) -> None:
             "template_method": "best silhouette IoU across font/stroke templates; none = 1 - best IoU",
             "fonts": [str(path) for path in args.font] or ["Pillow bundled default"],
             "vision_model": args.vision_model,
+            "vision_glyph_method": "best CLIP cosine similarity to default/available DejaVu font glyphs at stroke widths 3, 7, 11; no automatic abstention"
+            if args.vision_model
+            else None,
             "records": ranked,
             "failures": failures,
         },
@@ -576,7 +649,15 @@ def sheets(args: argparse.Namespace) -> None:
     directory = root / "sheets" / args.method
     directory.mkdir(parents=True, exist_ok=True)
     shortlist = {}
-    for digit in "0123456789":
+    reviewed_path = root / "reviewed-shortlist.json"
+    reviewed = read_json(reviewed_path) if reviewed_path.exists() else {}
+    digits = [
+        digit for digit in (args.digits or "0123456789") if not reviewed.get(digit)
+    ]
+    if any(digit not in "0123456789" for digit in digits):
+        raise ValueError("--digits must contain only digits 0-9")
+    print(f"Searching unfilled digits: {''.join(digits)}", flush=True)
+    for digit in digits:
         top = top_records(records, digit, args.method, args.top)
         shortlist[digit] = [record["id"] for record in top]
         sheet = Image.new("RGB", (4 * 250, math.ceil(len(top) / 4) * 300 + 35), "white")
@@ -594,7 +675,7 @@ def sheets(args: argparse.Namespace) -> None:
             with Image.open(root / record["silhouette_path"]) as silhouette:
                 sheet.paste(silhouette.resize((48, 48)), (x + 195, y + 172))
             confusable = max(
-                (label for label in LABELS if label != digit),
+                (label for label in record[args.method] if label != digit),
                 key=record[args.method].__getitem__,
             )
             draw.text(
@@ -648,7 +729,7 @@ def benchmark(args: argparse.Namespace) -> None:
         elif row["readable"].strip():
             raise ValueError("readable must be yes, no, or empty")
     report = {"reviewed_pairs": len(judgments), "top_k": args.top, "methods": {}}
-    for method in ("template", "vision_cartoon", "vision_silhouette"):
+    for method in ("template", "vision_cartoon", "vision_silhouette", "vision_glyph"):
         if not records or method not in records[0]:
             continue
         report["methods"][method] = {}
@@ -765,10 +846,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     sheets_parser.add_argument(
         "--method",
-        choices=("template", "vision_cartoon", "vision_silhouette"),
+        choices=("template", "vision_cartoon", "vision_silhouette", "vision_glyph"),
         default="template",
     )
     sheets_parser.add_argument("--top", type=positive, default=20)
+    sheets_parser.add_argument(
+        "--digits", help="target digits; already reviewed digits are always skipped"
+    )
     sheets_parser.set_defaults(run=sheets)
     benchmark_parser = commands.add_parser(
         "benchmark", help="measure readable top-k against human reviews"

@@ -142,6 +142,35 @@ def test_normalization_preserves_holes_aspect_and_removes_axis():
         search.normalize(Image.new("RGB", (100, 100), "white"))
 
 
+def test_sheets_skip_previously_reviewed_digits(tmp_path):
+    image = Image.new("RGB", (100, 100), "white")
+    ImageDraw.Draw(image).ellipse((25, 10, 75, 90), outline="blue", width=8)
+    image.save(tmp_path / "candidate.png")
+    record = {
+        "id": "candidate",
+        "pdb_id": "2wcd",
+        "kind": "assembly",
+        "assembly": "1",
+        "view": "side",
+        "image_path": "candidate.png",
+        "silhouette_path": "candidate.png",
+        "template": dict.fromkeys(search.LABELS, 0.5),
+    }
+    search.write_json(tmp_path / "rankings.json", {"records": [record]})
+    reviewed = {digit: [{"id": "previously-approved"}] for digit in "078"}
+    search.write_json(tmp_path / "reviewed-shortlist.json", reviewed)
+    assert (
+        search.main(
+            ["--workdir", str(tmp_path), "sheets", "--digits", "01789", "--top", "1"]
+        )
+        == 0
+    )
+    directory = tmp_path / "sheets/template"
+    assert set(search.read_json(directory / "shortlist.json")) == {"1", "9"}
+    assert not any((directory / f"{digit}.png").exists() for digit in "078")
+    assert search.read_json(tmp_path / "reviewed-shortlist.json") == reviewed
+
+
 def test_pilot_runs_offline_from_cached_catalogue_through_benchmark(
     tmp_path, monkeypatch
 ):
