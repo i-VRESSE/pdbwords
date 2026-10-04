@@ -1,8 +1,8 @@
 # Digit search pilot
 
-`scripts/digit_search.py` implements the search and review milestone in
-[`plan-digits.md`](../plan-digits.md). It produces candidates, not accepted digit
-definitions. Numeric input remains rejected until reviewed structures, selections,
+`scripts/digit_search.py` collects and ranks protein structure images for
+digit discovery and review. Search results are candidates; accepted digit
+definitions are recorded separately in the shared manifest. Numeric input remains rejected until reviewed structures, selections,
 camera geometry, and all four themes are available. It never substitutes letters.
 
 ## Start small
