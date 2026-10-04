@@ -1,10 +1,3 @@
-# /// script
-# requires-python = ">=3.11,<3.14"
-# dependencies = [
-#   "pillow>=11.0",
-#   "pymol-open-source==3.2.0a0",
-# ]
-# ///
 """Render high-resolution protein letters from the official PyMOL sessions."""
 
 from __future__ import annotations
@@ -26,7 +19,8 @@ ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 THEMES = ("classic", "loop", "oval", "tube")
 ARCHIVE_URL = "https://www.howarthgroup.org/alphabet_htm_files/AlphabetPDB.zip"
 ARCHIVE_SHA256 = "7c29b73b60cbf687072c41e256cda0bc0228563c23ffb3b130165ca75f799231"
-ASSET_DIRECTORY = Path(__file__).with_name("assets")
+REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
+ASSET_DIRECTORY = REPOSITORY_ROOT / "assets"
 
 
 class LetterManifest(TypedDict):
@@ -57,7 +51,7 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=ASSET_DIRECTORY / "manifest.json",
+        default=REPOSITORY_ROOT / "src/manifest.json",
         help="shared letter geometry manifest",
     )
     parser.add_argument(

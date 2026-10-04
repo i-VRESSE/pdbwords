@@ -1,48 +1,24 @@
-[build-system]
-requires = ["uv_build>=0.12.20,<0.13"]
-build-backend = "uv_build"
-
 [project]
-name = "pdbwords"
-version = "0.2.0"
-description = "Write text using Mark Howarth's protein alphabet"
-readme = "README.md"
-requires-python = ">=3.11"
-license = "GPL-3.0-or-later"
-license-files = ["LICENSE", "ASSET_LICENSE.md"]
-authors = [
-    { name = "Kresten Lindorff-Larsen" },
-    { name = "Stefan Verhoeven" },
-]
-dependencies = [
-    "pillow>=11.0",
-]
-
-[project.urls]
-Homepage = "https://www.howarthgroup.org/alphabet"
-Repository = "https://github.com/i-VRESSE/pdbwords"
-
-[project.scripts]
-pdbwords = "pdbwords:main"
+name = "pdbwords-maintenance"
+version = "0.1.0"
+description = "Maintenance scripts for the pdbwords JavaScript application"
+requires-python = ">=3.11,<3.14"
+dependencies = ["pillow>=11.0", "pymol-open-source==3.2.0a0"]
 
 [dependency-groups]
-dev = [
-    "molviewspec>=1.8.1",
-    "pymol-open-source==3.2.0a0; python_version < '3.14'",
-    "pytest>=8.3",
-    "ruff>=0.13",
-    "ty>=0.0.1a21",
-]
+dev = ["pytest>=8.3", "ruff>=0.13"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
-testpaths = ["tests"]
+testpaths = ["scripts/tests"]
+pythonpath = ["scripts"]
+
+[tool.uv]
+package = false
 
 [tool.ruff]
-src = ["src"]
+src = ["scripts"]
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "UP"]
-
-[tool.ty.src]
-include = ["src"]

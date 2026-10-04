@@ -1,10 +1,11 @@
+/node_modules/
 /.venv/
+/.pnpm/
 /build/
 /dist/
+/test-results/
+/playwright-report/
+/.pytest_cache/
 /*.egg-info/
 __pycache__/
 *.py[cod]
-/web/node_modules/
-/web/dist/
-/web/test-results/
-/web/playwright-report/

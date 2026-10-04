@@ -1,0 +1,565 @@
+{
+  "measured_at": "2026-09-30T13:52:05.006Z",
+  "total_bytes": 20896723,
+  "measurements": [
+    {
+      "letter": "A",
+      "pdb_id": "3IFZ",
+      "url": "https://models.rcsb.org/3IFZ.bcif",
+      "bytes": 533514,
+      "sha256": "9ce9f9fb48bf2371a154dbc776bcda952963ca840ddb7f90cab6115f35dd7738",
+      "elapsed_ms": 716,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [9, 499],
+        "B": [29, 501]
+      },
+      "observed_ca_ranges": {
+        "A": [9, 499],
+        "B": [29, 501]
+      },
+      "helices": 36,
+      "sheets": 34
+    },
+    {
+      "letter": "B",
+      "pdb_id": "2QYC",
+      "url": "https://models.rcsb.org/2QYC.bcif",
+      "bytes": 283230,
+      "sha256": "06735c1b29654bb5de9788658d488f48369274a44adb687550de4390a5786e57",
+      "elapsed_ms": 563,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [0, 101],
+        "B": [0, 101]
+      },
+      "observed_ca_ranges": {
+        "A": [0, 101],
+        "B": [0, 101]
+      },
+      "helices": 6,
+      "sheets": 8
+    },
+    {
+      "letter": "C",
+      "pdb_id": "2BNH",
+      "url": "https://models.rcsb.org/2BNH.bcif",
+      "bytes": 309299,
+      "sha256": "52d332fe4fc58ad042953b0d59fe5ab9cc5b0c3e3b3f450d8ff8f8aa3a219039",
+      "elapsed_ms": 574,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [1, 456]
+      },
+      "observed_ca_ranges": {
+        "A": [1, 456]
+      },
+      "helices": 17,
+      "sheets": 16
+    },
+    {
+      "letter": "D",
+      "pdb_id": "4J3O",
+      "url": "https://models.rcsb.org/4J3O.bcif",
+      "bytes": 734123,
+      "sha256": "1ae1bd2f5361cabf5b28c623b659ce89831616e11e41144134ffbde458773a1b",
+      "elapsed_ms": 249,
+      "cors": "*",
+      "manifest_chains": {
+        "D": [26, 834]
+      },
+      "observed_ca_ranges": {
+        "G": [1, 144],
+        "H": [1, 279],
+        "C": [1, 205],
+        "F": [1, 154],
+        "D": [26, 834]
+      },
+      "helices": 13,
+      "sheets": 137
+    },
+    {
+      "letter": "E",
+      "pdb_id": "2Q5R",
+      "url": "https://models.rcsb.org/2Q5R.bcif",
+      "bytes": 659697,
+      "sha256": "af5e305843e627d27f634501d1fc3317c4a4676536eb8daf2823ea4e5f71af74",
+      "elapsed_ms": 289,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [-7, 310],
+        "B": [-1, 310]
+      },
+      "observed_ca_ranges": {
+        "A": [-7, 310],
+        "B": [-1, 310],
+        "C": [0, 310],
+        "D": [-7, 310]
+      },
+      "helices": 50,
+      "sheets": 66
+    },
+    {
+      "letter": "F",
+      "pdb_id": "3J04",
+      "url": "https://models.rcsb.org/3J04.bcif",
+      "bytes": 1070751,
+      "sha256": "70365c156e1038ef243ee7329a89f7fc24f4e8a007b2d2e63b1c7f30deb28ee4",
+      "elapsed_ms": 227,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [2, 910],
+        "B": [25, 167],
+        "C": [3, 150],
+        "D": [2, 910],
+        "E": [25, 167],
+        "F": [3, 150]
+      },
+      "observed_ca_ranges": {
+        "A": [2, 910],
+        "B": [25, 167],
+        "C": [3, 150],
+        "D": [2, 910],
+        "E": [25, 167],
+        "F": [3, 150]
+      },
+      "helices": 110,
+      "sheets": 56
+    },
+    {
+      "letter": "G",
+      "pdb_id": "4U48",
+      "url": "https://models.rcsb.org/4U48.bcif",
+      "bytes": 1313946,
+      "sha256": "b3ad119ce61f1d602827dfb306af937d8e930c4a37aafcd1bd1136eb42c763ff",
+      "elapsed_ms": 329,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [50, 1644]
+      },
+      "observed_ca_ranges": {
+        "A": [50, 1644]
+      },
+      "helices": 22,
+      "sheets": 98
+    },
+    {
+      "letter": "H",
+      "pdb_id": "1XU9",
+      "url": "https://models.rcsb.org/1XU9.bcif",
+      "bytes": 646615,
+      "sha256": "e831de5c57148a52ebfc62783fa602223dd2d77b6176783e6b1e99b9cc6d2c73",
+      "elapsed_ms": 258,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [21, 289],
+        "B": [20, 289],
+        "C": [20, 281],
+        "D": [20, 281]
+      },
+      "observed_ca_ranges": {
+        "A": [21, 289],
+        "B": [20, 289],
+        "C": [20, 281],
+        "D": [20, 281]
+      },
+      "helices": 50,
+      "sheets": 28
+    },
+    {
+      "letter": "I",
+      "pdb_id": "3H7X",
+      "url": "https://models.rcsb.org/3H7X.bcif",
+      "bytes": 295631,
+      "sha256": "ccf37213117d3be8a90dad1a237cbd12f1e7e3d1425fffb946eb0f39ea4c8d9f",
+      "elapsed_ms": 213,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [301, 357],
+        "B": [303, 353],
+        "C": [304, 354]
+      },
+      "observed_ca_ranges": {
+        "A": [301, 357],
+        "B": [303, 353],
+        "C": [304, 354],
+        "D": [304, 357],
+        "E": [302, 354],
+        "F": [302, 354]
+      },
+      "helices": 6,
+      "sheets": 0
+    },
+    {
+      "letter": "J",
+      "pdb_id": "1B3U",
+      "url": "https://models.rcsb.org/1B3U.bcif",
+      "bytes": 584871,
+      "sha256": "34137c812089df5af8f5b2b6729dc98269fa5fefb4885523dba5153163780ba2",
+      "elapsed_ms": 192,
+      "cors": "*",
+      "manifest_chains": {
+        "B": [1, 588]
+      },
+      "observed_ca_ranges": {
+        "A": [1, 588],
+        "B": [1, 588]
+      },
+      "helices": 86,
+      "sheets": 0
+    },
+    {
+      "letter": "K",
+      "pdb_id": "4OX0",
+      "url": "https://models.rcsb.org/4OX0.bcif",
+      "bytes": 491032,
+      "sha256": "bd34818b7baba1177be66a8e84db8f2cf15ad2165b8b39f616120ad4b9389f93",
+      "elapsed_ms": 192,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [9, 101],
+        "B": [9, 103],
+        "C": [14, 104],
+        "D": [19, 101]
+      },
+      "observed_ca_ranges": {
+        "A": [9, 101],
+        "B": [9, 103],
+        "C": [14, 104],
+        "D": [19, 101]
+      },
+      "helices": 9,
+      "sheets": 0
+    },
+    {
+      "letter": "L",
+      "pdb_id": "1UEB",
+      "url": "https://models.rcsb.org/1UEB.bcif",
+      "bytes": 300987,
+      "sha256": "393eb2e2c708cb1cd6902b98b291bff4b17564fa952d1d13c50308ff81399e56",
+      "elapsed_ms": 163,
+      "cors": "*",
+      "manifest_chains": {
+        "B": [201, 384]
+      },
+      "observed_ca_ranges": {
+        "A": [1, 184],
+        "B": [201, 384]
+      },
+      "helices": 6,
+      "sheets": 34
+    },
+    {
+      "letter": "M",
+      "pdb_id": "1OU5",
+      "url": "https://models.rcsb.org/1OU5.bcif",
+      "bytes": 453334,
+      "sha256": "2c89a6255f0ffd7b993df867d912262aa9564c85b7d329f5f762849d27865bd8",
+      "elapsed_ms": 120,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [-1, 354],
+        "B": [-1, 354]
+      },
+      "observed_ca_ranges": {
+        "A": [-1, 354],
+        "B": [-1, 354]
+      },
+      "helices": 41,
+      "sheets": 11
+    },
+    {
+      "letter": "N",
+      "pdb_id": "1Z85",
+      "url": "https://models.rcsb.org/1Z85.bcif",
+      "bytes": 388361,
+      "sha256": "899720a975807c7b90643f6025dfee9a2e4cb8f8823b2484b0132bec5e42feaf",
+      "elapsed_ms": 124,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [2, 222],
+        "B": [2, 222]
+      },
+      "observed_ca_ranges": {
+        "A": [2, 222],
+        "B": [2, 222]
+      },
+      "helices": 10,
+      "sheets": 24
+    },
+    {
+      "letter": "O",
+      "pdb_id": "2WCD",
+      "url": "https://models.rcsb.org/2WCD.bcif",
+      "bytes": 5575197,
+      "sha256": "9353620518f58a56971643d3fae7f18c85041c4b7ed51206375d011bfe414126",
+      "elapsed_ms": 1427,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [8, 292],
+        "B": [8, 292],
+        "C": [8, 292],
+        "D": [8, 292],
+        "E": [8, 292],
+        "F": [8, 292],
+        "G": [8, 292],
+        "H": [8, 292],
+        "I": [8, 292],
+        "J": [8, 292],
+        "K": [8, 292],
+        "L": [8, 292]
+      },
+      "observed_ca_ranges": {
+        "A": [8, 292],
+        "B": [8, 292],
+        "C": [8, 292],
+        "D": [8, 292],
+        "E": [8, 292],
+        "F": [8, 292],
+        "G": [8, 292],
+        "H": [8, 292],
+        "I": [8, 292],
+        "J": [8, 292],
+        "K": [8, 292],
+        "L": [8, 292],
+        "M": [8, 292],
+        "N": [8, 292],
+        "O": [8, 292],
+        "P": [8, 292],
+        "Q": [8, 292],
+        "R": [8, 292],
+        "S": [8, 292],
+        "T": [8, 292],
+        "U": [8, 292],
+        "V": [8, 292],
+        "W": [8, 292],
+        "X": [8, 292]
+      },
+      "helices": 168,
+      "sheets": 0
+    },
+    {
+      "letter": "P",
+      "pdb_id": "3AFC",
+      "url": "https://models.rcsb.org/3AFC.bcif",
+      "bytes": 592963,
+      "sha256": "102231231001b36120c1be93b7607158dc14914fe5a359a90e453d6a8a1f7e4b",
+      "elapsed_ms": 129,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [19, 568]
+      },
+      "observed_ca_ranges": {
+        "A": [19, 568],
+        "B": [19, 558]
+      },
+      "helices": 21,
+      "sheets": 76
+    },
+    {
+      "letter": "Q",
+      "pdb_id": "3SZV",
+      "url": "https://models.rcsb.org/3SZV.bcif",
+      "bytes": 493473,
+      "sha256": "e3b0112df139bf9102a241ecf5fdcfa8e1aed6cf4c8055adbc8f50ceeb11d65a",
+      "elapsed_ms": 124,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [-8, 384]
+      },
+      "observed_ca_ranges": {
+        "A": [-8, 384]
+      },
+      "helices": 1,
+      "sheets": 21
+    },
+    {
+      "letter": "R",
+      "pdb_id": "2ARP",
+      "url": "https://models.rcsb.org/2ARP.bcif",
+      "bytes": 311600,
+      "sha256": "8ef574bb1a25e1d5ca5456c3b663164c95ebb753dc4b7d1e0d7b78d5282a8d67",
+      "elapsed_ms": 209,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [1, 116],
+        "F": [65, 212]
+      },
+      "observed_ca_ranges": {
+        "A": [1, 116],
+        "F": [65, 212]
+      },
+      "helices": 4,
+      "sheets": 17
+    },
+    {
+      "letter": "S",
+      "pdb_id": "2OT8",
+      "url": "https://models.rcsb.org/2OT8.bcif",
+      "bytes": 764467,
+      "sha256": "bc10d79abeb6cb03130f6cb67d4cb88edeb326fef1f0fc1277edaf338e9f7968",
+      "elapsed_ms": 306,
+      "cors": "*",
+      "manifest_chains": {
+        "B": [10, 890],
+        "D": [50, 69]
+      },
+      "observed_ca_ranges": {
+        "A": [10, 890],
+        "B": [10, 890],
+        "C": [51, 68],
+        "D": [50, 69]
+      },
+      "helices": 119,
+      "sheets": 0
+    },
+    {
+      "letter": "T",
+      "pdb_id": "3E98",
+      "url": "https://models.rcsb.org/3E98.bcif",
+      "bytes": 327351,
+      "sha256": "762e0c256c3fd2830723550ff8343d8eb4b592614e2a0c5dbcdbf18d8cf449c4",
+      "elapsed_ms": 119,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [48, 225],
+        "B": [46, 225]
+      },
+      "observed_ca_ranges": {
+        "A": [48, 225],
+        "B": [46, 225]
+      },
+      "helices": 14,
+      "sheets": 9
+    },
+    {
+      "letter": "U",
+      "pdb_id": "2VWE",
+      "url": "https://models.rcsb.org/2VWE.bcif",
+      "bytes": 570175,
+      "sha256": "6fccef9eb7f95c32ed61c9de54d046ce3b039145b61a64f03f464f30bd230e53",
+      "elapsed_ms": 330,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [11, 107],
+        "B": [11, 107],
+        "C": [1, 213],
+        "E": [1, 212],
+        "J": [1, 213],
+        "L": [1, 212]
+      },
+      "observed_ca_ranges": {
+        "A": [11, 107],
+        "B": [11, 107],
+        "C": [1, 213],
+        "E": [1, 212],
+        "J": [1, 213],
+        "L": [1, 212]
+      },
+      "helices": 12,
+      "sheets": 100
+    },
+    {
+      "letter": "V",
+      "pdb_id": "3H90",
+      "url": "https://models.rcsb.org/3H90.bcif",
+      "bytes": 1092037,
+      "sha256": "3558d124b72951526a80ead2c476c41a21f8399a66893a94da99eb1820264f14",
+      "elapsed_ms": 539,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [8, 290],
+        "C": [8, 290]
+      },
+      "observed_ca_ranges": {
+        "A": [8, 290],
+        "B": [8, 290],
+        "C": [8, 290],
+        "D": [8, 290]
+      },
+      "helices": 36,
+      "sheets": 12
+    },
+    {
+      "letter": "W",
+      "pdb_id": "4CJ9",
+      "url": "https://models.rcsb.org/4CJ9.bcif",
+      "bytes": 1370069,
+      "sha256": "24f23de68e3c9f4ae24c8f85a6933bebae00c98c07ecb2bfaef57903df95aac0",
+      "elapsed_ms": 563,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [15, 766]
+      },
+      "observed_ca_ranges": {
+        "A": [15, 766],
+        "B": [15, 766]
+      },
+      "helices": 96,
+      "sheets": 0
+    },
+    {
+      "letter": "X",
+      "pdb_id": "1W3B",
+      "url": "https://models.rcsb.org/1W3B.bcif",
+      "bytes": 424585,
+      "sha256": "0953f9f1d2baa920c8a9b92b4d5a6ee5d96247a6a16ed86701fa029decd16258",
+      "elapsed_ms": 208,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [13, 400],
+        "B": [13, 400]
+      },
+      "observed_ca_ranges": {
+        "A": [13, 400],
+        "B": [13, 400]
+      },
+      "helices": 45,
+      "sheets": 0
+    },
+    {
+      "letter": "Y",
+      "pdb_id": "1IGT",
+      "url": "https://models.rcsb.org/1IGT.bcif",
+      "bytes": 783292,
+      "sha256": "a4fbee5f1974e03fcd4e187801d1802105b0da3c1a18dbebce76d98016234d4c",
+      "elapsed_ms": 143,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [1, 214],
+        "B": [1, 474],
+        "C": [1, 214],
+        "D": [1, 474]
+      },
+      "observed_ca_ranges": {
+        "A": [1, 214],
+        "B": [1, 474],
+        "C": [1, 214],
+        "D": [1, 474]
+      },
+      "helices": 27,
+      "sheets": 92
+    },
+    {
+      "letter": "Z",
+      "pdb_id": "4BTA",
+      "url": "https://models.rcsb.org/4BTA.bcif",
+      "bytes": 526123,
+      "sha256": "d0e93998068238e6664340919d09e1dbbd86c8a622c309a42c3a407a4212275f",
+      "elapsed_ms": 131,
+      "cors": "*",
+      "manifest_chains": {
+        "A": [3, 239],
+        "B": [7, 234],
+        "C": [1, 9]
+      },
+      "observed_ca_ranges": {
+        "A": [3, 239],
+        "B": [7, 234],
+        "C": [1, 9]
+      },
+      "helices": 26,
+      "sheets": 0
+    }
+  ]
+}

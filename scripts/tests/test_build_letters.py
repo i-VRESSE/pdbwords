@@ -19,7 +19,7 @@ class FakePyMOLCommand:
 
 
 def test_builder_applies_distinct_pymol_theme() -> None:
-    builder = importlib.import_module("pdbwords.build_letters")
+    builder = importlib.import_module("build_letters")
     command = FakePyMOLCommand()
 
     builder.apply_theme(command, "tube")
@@ -32,7 +32,7 @@ def test_builder_applies_distinct_pymol_theme() -> None:
 
 
 def test_builder_accepts_letters_and_validates_themes() -> None:
-    builder = importlib.import_module("pdbwords.build_letters")
+    builder = importlib.import_module("build_letters")
     args = builder.parse_args(["--letters", "ABC", "--theme", "loop"])
 
     assert args.letters == "ABC"
@@ -40,16 +40,19 @@ def test_builder_accepts_letters_and_validates_themes() -> None:
 
 
 def test_builder_rejects_digits() -> None:
-    builder = importlib.import_module("pdbwords.build_letters")
+    builder = importlib.import_module("build_letters")
 
     with pytest.raises(ValueError, match="--letters must contain only A-Z"):
         builder.main(["--letters", "42"])
 
 
-def test_builder_defaults_to_packaged_assets() -> None:
-    builder = importlib.import_module("pdbwords.build_letters")
+def test_builder_defaults_to_repository_assets() -> None:
+    builder = importlib.import_module("build_letters")
     args = builder.parse_args([])
 
     assert builder.__file__ is not None
-    assert args.manifest == Path(builder.__file__).with_name("assets") / "manifest.json"
+    assert (
+        args.manifest
+        == Path(builder.__file__).resolve().parent.parent / "src/manifest.json"
+    )
     assert args.output_dir is None

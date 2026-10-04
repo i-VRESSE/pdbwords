@@ -1,5 +1,5 @@
 {
-  "name": "pdbwords-web",
+  "name": "pdbwords",
   "version": "0.1.0",
   "private": true,
   "license": "GPL-3.0-or-later",
@@ -10,7 +10,10 @@
     "test": "vp test run",
     "build": "vp build",
     "test:browser": "playwright test",
-    "measure:coordinates": "node scripts/measure-coordinates.mjs"
+    "measure:coordinates": "node scripts/measure-coordinates.mjs",
+    "assets:build": "uv run python scripts/build_letters.py",
+    "manifest:extract": "uv run python scripts/extract_manifest.py",
+    "test:python": "uv run pytest"
   },
   "dependencies": {
     "molstar": "5.12.0"
@@ -24,5 +27,5 @@
   "engines": {
     "node": ">=22.18.0"
   },
-  "packageManager": "pnpm@12.4.1"
+  "packageManager": "pnpm@12.9.1"
 }

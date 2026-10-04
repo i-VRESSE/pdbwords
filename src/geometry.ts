@@ -6,6 +6,21 @@ export interface LetterGeometry {
   projected_center: Vec3;
   projected_size: Vec3;
   advance: number;
+  /** Digits embed normalized coordinates for their approved biological assembly. */
+  coordinates_url?: string;
+  model_index?: number;
+  coordinate_scale?: number;
+  source_url?: string;
+  assembly_id?: string;
+}
+export interface DigitDefinition {
+  pdb_id: string;
+  assembly: string;
+  model: number;
+  selection: "polymer.protein";
+  camera:
+    | { position: Vec3; target: Vec3; up: Vec3 }
+    | { format: "pymol"; view: number[]; image_rotation_clockwise_deg: number };
 }
 export interface Manifest {
   version: 1;
@@ -14,6 +29,7 @@ export interface Manifest {
   line_height: number;
   space_advance: number;
   letters: Record<string, LetterGeometry>;
+  digits?: Record<string, DigitDefinition>;
 }
 export type Background = "white" | "#101c27" | "transparent";
 export type Style = "rainbow" | "ocean";
@@ -58,7 +74,7 @@ export const rainbow = [
 export function validateManifest(value: unknown): Manifest {
   const fail = (field: string): never => {
     throw new Error(
-      `Invalid alphabet manifest (${field}). Regenerate it with src/extract_manifest.py.`,
+      `Invalid alphabet manifest (${field}). Regenerate it with scripts/extract_manifest.py.`,
     );
   };
   if (!value || typeof value !== "object") return fail("expected an object");
@@ -94,19 +110,53 @@ export function validateManifest(value: unknown): Manifest {
         return fail(`${ch}.residue range`);
     }
   }
+  if (m.digits !== undefined) {
+    if (!m.digits || typeof m.digits !== "object") return fail("digits");
+    for (const [ch, d] of Object.entries(m.digits as Record<string, DigitDefinition>)) {
+      const field = `digits.${ch}`;
+      if (!/^[0-9]$/.test(ch) || !d || !/^[0-9A-Z]{4}$/.test(d.pdb_id)) return fail(field);
+      if (!/^\d+$/.test(d.assembly) || !Number.isInteger(d.model) || d.model < 1)
+        return fail(`${field}.assembly/model`);
+      if (d.selection !== "polymer.protein") return fail(`${field}.selection`);
+      const camera = d.camera;
+      if (!camera || typeof camera !== "object") return fail(`${field}.camera`);
+      if ("format" in camera) {
+        if (
+          camera.format !== "pymol" ||
+          !Array.isArray(camera.view) ||
+          camera.view.length !== 18 ||
+          !camera.view.every(Number.isFinite) ||
+          !Number.isFinite(camera.image_rotation_clockwise_deg)
+        )
+          return fail(`${field}.camera`);
+      } else {
+        for (const vector of [camera.position, camera.target, camera.up])
+          if (!Array.isArray(vector) || vector.length !== 3 || !vector.every(Number.isFinite))
+            return fail(`${field}.camera`);
+        const cross = (a: Vec3, b: Vec3) => [
+          a[1] * b[2] - a[2] * b[1],
+          a[2] * b[0] - a[0] * b[2],
+          a[0] * b[1] - a[1] * b[0],
+        ];
+        const direction = camera.position.map((v, i) => v - camera.target[i]) as Vec3;
+        if (Math.hypot(...cross(camera.up, direction)) < 1e-8) return fail(`${field}.camera`);
+      }
+    }
+  }
   return value as Manifest;
 }
 
 export function wordsToLines(text: string, maxChars = 20): string[][] {
   if (!Number.isInteger(maxChars) || maxChars < 1)
     throw new Error("Wrap width must be a positive integer.");
-  if (/\p{Nd}/u.test(text)) throw new Error("Digits are not supported by the protein alphabet.");
   const unsupported = [
-    ...new Set(Array.from(text.replaceAll("xLBx", "")).filter((c) => !/[a-zA-Z\s.,:!?-]/.test(c))),
+    ...new Set(
+      Array.from(text.replaceAll("xLBx", "")).filter((c) => !/[a-zA-Z0-9\s.,:!?-]/.test(c)),
+    ),
   ];
   if (unsupported.length)
     throw new Error(
-      `Unsupported characters: ${unsupported.join(" ")}. Use A–Z, spaces, or . , : ! ? -`,
+      `Unsupported characters: ${unsupported.join(" ")}. Use A–Z, 0–9, spaces, or . , : ! ? -`,
     );
   if (text.length > 240) throw new Error("Please use at most 240 characters.");
   const tokens = text
@@ -233,34 +283,46 @@ export function colorNodes(chains: LetterGeometry["chains"], style: Style): Scen
 }
 
 export function createScene(text: string, manifest: Manifest, settings: LayoutSettings) {
+  for (const ch of text)
+    if (/[0-9]/.test(ch) && !manifest.letters[ch])
+      throw new Error(`Digit ${ch} geometry is unavailable. Load its assembly before rendering.`);
   const lines = wordsToLines(text, settings.maxChars),
     layout = positions(lines, manifest, settings.letterSpacing);
   if (!Object.keys(layout.placed).length)
-    throw new Error("Enter at least one protein letter (A–Z).");
+    throw new Error("Enter at least one protein letter or digit (A–Z, 0–9).");
   const children: SceneNode[] = Object.entries(layout.placed).map(([character, points]) => {
     const l = manifest.letters[character];
     return {
       kind: "download",
-      params: { url: `https://models.rcsb.org/${l.pdb_id}.bcif` },
+      params: { url: l.coordinates_url ?? `https://models.rcsb.org/${l.pdb_id}.bcif` },
       children: [
         {
           kind: "parse",
-          params: { format: "bcif" },
+          params: { format: l.coordinate_scale ? "bcif" : l.coordinates_url ? "mmcif" : "bcif" },
           children: [
             {
               kind: "structure",
-              params: { type: "model" },
+              params: {
+                type: l.assembly_id ? "assembly" : "model",
+                ...(l.assembly_id ? { assembly_id: l.assembly_id } : {}),
+                ...(l.model_index !== undefined ? { model_index: l.model_index } : {}),
+              },
               children: [
                 ...points.map((p) => ({ kind: "instance", params: { matrix: matrix(l, p) } })),
                 {
                   kind: "component",
                   params: {
-                    selector: Object.keys(l.chains).map((chain) => ({ auth_asym_id: chain })),
+                    selector: l.coordinates_url
+                      ? "protein"
+                      : Object.keys(l.chains).map((chain) => ({ auth_asym_id: chain })),
                   },
                   children: [
                     {
                       kind: "representation",
-                      params: { type: "cartoon" },
+                      params: {
+                        type: "cartoon",
+                        ...(l.coordinate_scale ? { size_factor: l.coordinate_scale } : {}),
+                      },
                       children: colorNodes(l.chains, settings.style),
                     },
                     { kind: "tooltip", params: { text: `${character}: PDB ${l.pdb_id}` } },
@@ -297,7 +359,15 @@ export function createScene(text: string, manifest: Manifest, settings: LayoutSe
     root: { kind: "root", children },
     metadata: {
       title: `pdbwords: ${lines.map((l) => l.join(" ")).join(" / ")}`,
-      description: `Created with pdbwords from Mark Howarth's protein alphabet (${manifest.source}); geometry manifest v${manifest.version}. Coordinates: RCSB PDB. Style: ${settings.style}. Extra letter spacing: ${settings.letterSpacing ?? 0} cap heights. Punctuation omitted from 3D: ${omitted.join(" ") || "none"}.`,
+      description: `Created with pdbwords from Mark Howarth's protein alphabet (${manifest.source}); geometry manifest v${manifest.version}. Coordinates: RCSB PDB. Style: ${settings.style}. Extra letter spacing: ${settings.letterSpacing ?? 0} cap heights. Punctuation omitted from 3D: ${omitted.join(" ") || "none"}.${Object.keys(
+        layout.placed,
+      )
+        .filter((ch) => manifest.letters[ch].source_url)
+        .map(
+          (ch) =>
+            ` Digit ${ch}: ${manifest.letters[ch].source_url}; coordinates scaled by ${manifest.letters[ch].coordinate_scale}.`,
+        )
+        .join("")}`,
       timestamp: new Date().toISOString(),
       version: "1.8",
     },

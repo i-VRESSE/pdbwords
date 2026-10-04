@@ -1,12 +1,94 @@
 import { Viewer } from "molstar/lib/apps/viewer/app";
 import { MVSData } from "molstar/lib/extensions/mvs/mvs-data";
-import { RuntimeContext } from "molstar/lib/mol-task";
+import { RuntimeContext, Task } from "molstar/lib/mol-task";
 import { Vec3 } from "molstar/lib/mol-math/linear-algebra";
-import type { Scene, Vec3 as Bounds } from "./geometry";
+import { CIF } from "molstar/lib/mol-io/reader/cif";
+import { trajectoryFromMmCIF } from "molstar/lib/mol-model-formats/structure/mmcif";
+import { Structure, Unit } from "molstar/lib/mol-model/structure";
+import { StructureSymmetry } from "molstar/lib/mol-model/structure/structure/symmetry";
+import { isProtein } from "molstar/lib/mol-model/structure/model/types";
+import type { Manifest, Scene, Vec3 as Bounds } from "./geometry";
+import { digitCoordinatesUrl, digitGeometry, scaledDigitCoordinates } from "./digits";
 
 /** Blob URLs survive scene replacement; failed downloads are evicted for retry. */
 export class CoordinateCache {
   private readonly entries = new Map<string, Promise<string>>();
+  private get(url: string): Promise<string> {
+    let entry = this.entries.get(url);
+    if (!entry) {
+      entry = this.fetch(url);
+      this.entries.set(url, entry);
+      void entry.catch(() => this.entries.delete(url));
+    }
+    return entry;
+  }
+  async resolveDigits(manifest: Manifest, text: string, progress: (message: string) => void) {
+    for (const ch of new Set(text.match(/[0-9]/g) ?? [])) {
+      if (manifest.letters[ch]) continue;
+      const digit = manifest.digits?.[ch];
+      if (!digit) throw new Error(`Digit ${ch} is missing from the alphabet manifest.`);
+      progress(`Loading protein digit ${ch}…`);
+      const url = await this.get(digitCoordinatesUrl(digit));
+      const parsed = await CIF.parseBinary(
+        new Uint8Array(await (await fetch(url)).arrayBuffer()),
+      ).run();
+      if (parsed.isError) throw new Error(`Cannot read digit ${ch} coordinates: ${parsed.message}`);
+      const trajectory = await trajectoryFromMmCIF(parsed.result.blocks[0]).run();
+      let modelIndex = -1;
+      let structure: Structure | undefined;
+      for (let i = 0; i < trajectory.frameCount; i++) {
+        const frame = trajectory.getFrameAtIndex(i);
+        const model = Task.is(frame) ? await frame.run() : frame;
+        if (model.modelNum === digit.model) {
+          modelIndex = i;
+          structure = await StructureSymmetry.buildAssembly(
+            Structure.ofModel(model),
+            digit.assembly,
+          ).run();
+          break;
+        }
+      }
+      if (!structure) throw new Error(`Model ${digit.model} is missing for digit ${ch}.`);
+      const chains: Record<string, [number, number]> = {};
+      function* points(): Generator<Bounds> {
+        const point = Vec3();
+        for (const unit of structure!.units) {
+          if (!Unit.isAtomic(unit)) continue;
+          const h = unit.model.atomicHierarchy;
+          for (let i = 0; i < unit.elements.length; i++) {
+            const element = unit.elements[i];
+            const residue = h.residueAtomSegments.index[element];
+            if (!isProtein(h.derived.residue.moleculeType[residue])) continue;
+            const chain = h.chains.auth_asym_id.value(h.chainAtomSegments.index[element]);
+            const seq = h.residues.auth_seq_id.value(residue);
+            const range = (chains[chain] ??= [seq, seq]);
+            range[0] = Math.min(range[0], seq);
+            range[1] = Math.max(range[1], seq);
+            unit.conformation.position(element, point);
+            yield point as unknown as Bounds;
+          }
+        }
+      }
+      const geometry = digitGeometry(
+        digit,
+        points(),
+        chains,
+        manifest.letters.A.projected_size[1],
+        modelIndex,
+      );
+      const bytes = scaledDigitCoordinates(parsed.result.blocks[0], geometry.coordinate_scale!);
+      // Embedded normalized BCIF keeps exported MVSJ portable without session blob URLs.
+      geometry.coordinates_url = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error(`Cannot encode digit ${ch} coordinates.`));
+        reader.readAsDataURL(
+          new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "application/octet-stream" }),
+        );
+      });
+      manifest.letters[ch] = geometry;
+    }
+  }
   async prepare(scene: Scene, progress: (message: string) => void): Promise<Scene> {
     const copy = structuredClone(scene);
     const nodes = copy.root.children!.filter((n) => n.kind === "download");
@@ -17,13 +99,7 @@ export class CoordinateCache {
         while (next < nodes.length) {
           const node = nodes[next++],
             url = node.params!.url as string;
-          let entry = this.entries.get(url);
-          if (!entry) {
-            entry = this.fetch(url);
-            this.entries.set(url, entry);
-            entry.catch(() => this.entries.delete(url));
-          }
-          node.params!.url = await entry;
+          node.params!.url = await this.get(url);
           progress(`Coordinates ${++done}/${nodes.length} loaded`);
         }
       }),

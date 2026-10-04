@@ -11,7 +11,7 @@ export interface ExportOptions {
   letterSpacing?: number;
 }
 const assetUrls = import.meta.glob(
-  ["../../src/pdbwords/assets/{stop,comma,colon,exclamation,question,hyphen}.png"],
+  ["../assets/{stop,comma,colon,exclamation,question,hyphen}.png"],
   {
     query: "?url",
     import: "default",
@@ -78,7 +78,7 @@ export class WordExporter {
       if (!tile) {
         if (punctuation[char]) {
           const img = new Image();
-          img.src = assetUrls[`../../src/pdbwords/assets/${punctuation[char]}.png`];
+          img.src = assetUrls[`../assets/${punctuation[char]}.png`];
           await img.decode();
           tile = document.createElement("canvas");
           tile.width = img.width;

@@ -1,220 +1,150 @@
 # pdbwords
 
-`pdbwords` writes text using the protein alphabet curated by Mark Howarth. The
-letters are protein structures from the Protein Data Bank, rendered to resemble
-the Latin alphabet.
+![The pdbwords app rendering “pdbwords” with protein structures](docs/images/pdbwords-app.png)
 
-The original program was written by Kresten Lindorff-Larsen at the University
-of Copenhagen in 2015. This version uses modern Python packaging and Pillow, so
-ImageMagick is no longer required.
+Write messages with protein letters and digits in a static TypeScript app using
+Mol* and MolViewSpec. The app renders interactive molecular scenes and exports
+word PNGs, scene PNGs, and portable MolViewSpec files.
 
-## Usage
+The original protein alphabet was curated by Mark Howarth, and the original
+program was written by Kresten Lindorff-Larsen in 2015. This repository now
+contains the JavaScript app; Python is used only for asset maintenance.
 
-[Install uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
+Use Node 24 and pnpm 12.9.1 (both pinned for CI):
 
-```console
-uv run pdbwords image Just write your text here
+```sh
+pnpm install --frozen-lockfile
+pnpm exec vp dev
+pnpm exec vp check
+pnpm exec vp test run
+pnpm exec vp build
+pnpm exec vp preview
 ```
 
-For example, turn a short message for the life-sciences community into a
-shareable protein word:
+The equivalent global CLI commands are `vp install`, `vp dev`, `vp check`,
+`vp test run`, and `vp build`. The local Vite+ version is locked at 1.0.0.
+Open `/pdbwords/` on the development/preview server. Set `PAGES_BASE=/` when
+building for a custom domain, or `/another-repository/` for a renamed repo.
 
-```console
-uv run pdbwords image --output ai4ls.png AI FOR LS
+## Rendering and export
+
+The “Try all letters (A–Z)” button fills a four-line alphabet example and renders
+it automatically.
+“Try all digits (0–9)” does the same for a two-line digit example.
+
+Downloaded word PNGs from these examples:
+
+![Protein alphabet A–Z exported from the app](docs/images/alphabet.png)
+
+![Protein digits 0–9 exported from the app](docs/images/digits.png)
+
+The app imports `src/manifest.json` directly; there is no
+second geometry manifest. It preserves the Python column-major transforms,
+whole-word wrapping, line spacing, author chain identifiers and residue color
+ranges. The extractor selects only protein atoms shown as cartoons in the
+original sessions: hidden chains are excluded, including for D, E, and O.
+Newlines and the case-sensitive `xLBx` token are line breaks. Letters A–Z and
+digits 0–9 are supported; characters outside these, whitespace, and `.,:!?-`
+produce explicit errors.
+Punctuation occupies spacing in 3D but is visibly reported as omitted.
+
+Digits use the manifest's approved biological assemblies and camera orientations,
+including the PyMOL view for 6. Compact BCIF source files come from RCSB and
+Mol* constructs the biological assemblies from their operators; protein
+bounds are measured in the saved view and scaled to the height of A.
+The resolved geometry and coordinate downloads are cached for the session.
+Digits work in the interactive scene, both PNG exports, and portable MVSJ exports.
+
+Coordinates come from `https://models.rcsb.org/{PDB_ID}.bcif`, with a maximum
+of three parallel downloads and a session cache. Each repeated letter shares
+one parsed structure and uses separate MolViewSpec instances. Old scenes are
+replaced; edited inputs invalidate downloads, and obsolete renders are ignored.
+A reload releases the cache. Internet access is required; this is not an
+offline application.
+
+Scene PNG captures the current rotation and zoom at the chosen dimensions.
+Word PNG uses a separate offscreen Mol* viewer to render distinct letters with
+transparent alpha, crops their actual silhouettes, and normalizes tile heights.
+The punctuation PNGs come from the existing alphabet assets. Tile cache keys
+include letter, style, resolution and background and have a bounded size.
+Both outputs have exact chosen dimensions. No PNG provenance metadata is
+injected; provenance, source URLs, and attribution are in the MVSJ download.
+MVSJ uses portable RCSB URLs for letters and embedded normalized BCIF for digits,
+with the original assembly URLs and scale factors recorded in its description.
+Digit exports can be larger because they include those coordinates.
+
+Letter spacing updates the scene automatically after a short debounce and is included
+in both PNG layout and MVSJ transforms.
+
+The camera is orthographic and framing uses transformed bounds including
+native depth. The initial message limit is 240 characters; PNG options are
+1200×1200, 1600×900 and 2400×1350. These are conservative UI limits rather than
+universal performance guarantees across mobile GPUs.
+
+Mol* uses coordinate secondary-structure annotations for experimental PDB
+structures. Its automatic secondary-structure provider can compute DSSP for
+other atomic models, but does not guarantee a fallback for every experimental
+structure missing annotations. Source-coordinate changes can affect appearance.
+
+## Validation
+
+Unit tests check text validation, scene geometry, saved camera orientations,
+assembly scaling, and digit exports. Python tests cover the maintenance scripts. To run
+production-browser tests:
+
+```sh
+pnpm exec vp build
+pnpm exec playwright install chromium firefox webkit
+pnpm exec playwright test
 ```
 
-![Protein structures arranged as the words "AI FOR LS" in rainbow colors](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/ai4ls.png)
+Tests use the production `/pdbwords/` subpath, render A/B/D/O, digits 3/6, and A–Z, exercise
+both PNGs and MVSJ, and cover network and WebGL failures. Chromium, Firefox and
+mobile WebKit are configured. The live coordinate integration tests require
+RCSB access. `CHROMIUM_PATH` can select an existing Chromium executable.
 
-The result is written to `proteinword.jpg`. Choose another output path, line
-length, or letter height with:
+## Extraction and publication
 
-```console
-uv run pdbwords image --output message.png --max-chars 20 --height 500 Hello protein world!
-```
+The maintained Python scripts are `scripts/build_letters.py` (regenerate the
+original letter PNGs) and `scripts/extract_manifest.py` (extract letter geometry
+from the official PyMOL sessions). [uv](https://docs.astral.sh/uv/) manages their
+Python interpreter, Pillow, `pymol-open-source==3.2.0a0`, pytest, and Ruff using
+`pyproject.toml`, `uv.lock`, and `.venv`. pnpm manages only JavaScript dependencies.
+The browser runtime and JavaScript build do not require Python.
 
-Four PyMOL rendering themes are bundled. Select one with `--theme`:
-
-```console
-uv run pdbwords image --theme tube Hello protein world!
-```
-
-Each preview renders the same word, `PROTEIN`:
-
-| Theme | Preview |
-| --- | --- |
-| `classic` | ![PROTEIN rendered with the classic PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-classic.png) |
-| `loop` | ![PROTEIN rendered with the loop PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-loop.png) |
-| `oval` | ![PROTEIN rendered with the oval PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-oval.png) |
-| `tube` | ![PROTEIN rendered with the tube PyMOL theme](https://raw.githubusercontent.com/i-VRESSE/pdbwords/main/examples/theme-tube.png) |
-
-For an interactive 3D word, create a MolViewSpec file and open it in a
-[MolViewSpec-compatible viewer](https://molviewspec.github.io/):
-
-```console
-uv run pdbwords mvs --output message.mvsj Hello protein world!
-```
-
-An `.mvsj` file references BinaryCIF structures hosted by RCSB PDB. An `.mvsx`
-file can also reference those online structures, or bundle all required
-coordinates for offline use:
-
-```console
-uv run pdbwords mvs --output message.mvsx --offline Hello protein world!
-```
-
-Repeated letters are represented as rigidly transformed instances of one
-downloaded structure. Each structure remains interactive, retains its source
-PDB ID in a tooltip, and uses a residue-based rainbow cartoon representation.
-The generated scene is centered and spaced from geometry extracted from the
-original PyMOL camera views. MolViewSpec only permits rigid structure transforms,
-so 3D letter heights reflect the source structures' coordinate scales rather
-than the normalized static tiles. Cartoon implementations also differ between
-PyMOL and Mol*, so the 3D scene approximates rather than pixel-matches the static
-alphabet.
-
-Use the case-sensitive token `xLBx` to force a line break:
-
-```console
-uv run pdbwords image First line xLBx Second line
-```
-
-Letters A-Z and the punctuation `. , ! ? : -` have dedicated images. Input is
-case-insensitive. Unsupported characters are replaced with a space and reported
-on standard error. Words longer than the configured line length remain intact.
-
-Generated PNG files contain `Description`, `Software`, and `PDB IDs` text
-metadata. JPEG files store the same provenance in their EXIF description and
-software fields. The PDB mapping follows the A-Z table on the Howarth alphabet
-page and lists each letter used in the image.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    input["Text and CLI options"] --> cli["CLI and application logic<br/>src/pdbwords/__init__.py"]
-    cli --> layout["Validate and wrap text<br/>words_to_lines()"]
-
-    subgraph static["Static image pipeline"]
-        image["image command"] --> pillow["Pillow tile composition"]
-        assets["Packaged assets<br/>src/pdbwords/assets/"] --> pillow
-        pillow --> raster["PNG or JPEG<br/>with provenance metadata"]
-    end
-
-    subgraph interactive["Interactive 3D pipeline"]
-        mvs["mvs command"] --> scene["MolViewSpec scene builder"]
-        manifest["assets/manifest.json<br/>PDB IDs, chains, views, spacing"]
-        manifest --> scene
-        scene --> mvsfile["MVSJ or MVSX scene"]
-        mvsfile --> viewer["MolViewSpec-compatible viewer"]
-        rcsb["RCSB PDB BinaryCIF service"]
-        scene -. "downloads coordinates with --offline" .-> rcsb
-        viewer -. "follows online coordinate references" .-> rcsb
-    end
-
-    cli --> image
-    cli --> mvs
-    layout --> image
-    layout --> mvs
-    assets --> manifest
-
-    subgraph maintenance["Maintainer-only asset generation"]
-        sessions["Official Howarth PyMOL sessions"] --> extract["src/extract_manifest.py"]
-        assets -. "supplies tile width ratios" .-> extract
-        extract --> manifest
-        render["src/pdbwords/build_letters.py<br/>headless PyMOL and Pillow"]
-        sessions --> render
-        manifest --> render
-        render --> assets
-    end
-```
-
-The installed command needs only Pillow and the packaged assets. PyMOL is
-isolated to the maintainer scripts that regenerate those assets; it is not part
-of either runtime pipeline.
-
-## Development
-
-Install all dependencies and run the test suite:
-
-```console
-uv sync
+```sh
+uv sync --locked
+uv run python scripts/build_letters.py --sessions AlphabetPDB.zip
+uv run python scripts/extract_manifest.py --sessions AlphabetPDB.zip
 uv run pytest
+uv run ruff check scripts
 ```
 
-Build the source distribution and wheel, then publish them to PyPI:
+The `assets:build`, `manifest:extract`, and `test:python` pnpm scripts delegate to
+uv as conveniences. Both maintenance scripts default to root `assets/` and
+`src/manifest.json`. The extractor updates A–Z geometry while preserving manually
+reviewed digit entries. Original letter PNGs supply spacing measurements;
+punctuation PNGs are used by the browser. Alternative PyMOL themes remain
+maintainer reference assets. There is no Python CLI, wheel, or PyPI publication.
 
-```console
-uv build
-uv publish
-```
+`web-checks.yml` checks and tests the app. `pages.yml` prepares manual Pages
+publication; enable GitHub Pages with the Actions source and review `dist`
+and the attribution before running it. No publication is triggered by a push.
 
-The alphabet assets and shared geometry manifest are included in both
-distributions and installed with the command, so a published wheel does not
-depend on files from this repository.
+Code is GPL-3.0-or-later. Mark Howarth's alphabet assets have separate
+non-commercial terms; see `ASSET_LICENSE.md` and the
+[Howarth alphabet page](https://www.howarthgroup.org/alphabet).
+Coordinates are credited to RCSB PDB and the original structure authors via
+linked source PDB IDs. Mol* is MIT licensed.
 
-### Rebuilding the letters
+## Coordinate measurements
 
-The Howarth Lab publishes the original A-Z PyMOL sessions, which preserve the
-molecular assemblies, representations, colors, and camera views. Rebuild the
-classic theme as 1000-pixel-high, transparent, lossless PNGs with:
-
-```console
-uv run --script src/pdbwords/build_letters.py
-```
-
-The script downloads the official session archive, verifies its SHA-256 digest,
-ray-traces every letter in headless PyMOL, trims transparent margins, and writes
-`src/pdbwords/assets/a.png` through `src/pdbwords/assets/z.png` plus a transparent
-space tile. Use `--sessions AlphabetPDB.zip` to supply an existing archive, or
-inspect all options with `--help`. PyMOL is included in the development
-dependency group and the script's isolated dependencies, but is not installed
-with `pdbwords` or required at runtime.
-
-Regenerate a complete alternative theme with, for example:
-
-```console
-uv run --script src/pdbwords/build_letters.py --theme tube
-```
-
-Alternative themes are written below `src/pdbwords/assets/themes/`. Use
-`--letters` to regenerate a subset of the alphabet.
-
-PNG is used as the master format because it is lossless and supports alpha
-transparency. Lossless WebP can be smaller, but would add a conversion step and
-has less universal tooling support; JPEG cannot preserve transparency and adds
-artifacts around fine cartoon edges. PNG word output preserves transparency,
-while JPEG word output is flattened onto white.
-
-The shared `src/pdbwords/assets/manifest.json` records the source PDB IDs,
-enabled chains, residue ranges, saved camera rotations, projected bounds, and
-visual spacing. Regenerate its letter geometry directly from the official
-sessions with:
-
-```console
-uv run --python 3.11 src/extract_manifest.py --sessions AlphabetPDB.zip
-```
-
-The image builder checks each session against this manifest. The static and 3D
-renderers use the same proportional spacing metadata, while the 3D renderer also
-applies the saved rotations and projected centering.
-
-## Background and license
-
-Mark Howarth describes the alphabet, its protein structures, and the original
-publication at <https://www.howarthgroup.org/alphabet>. The site permits the
-alphabet files to be used freely for non-commercial purposes.
-
-The Python code is distributed under the GNU General Public License v3.0 or
-later; see [`LICENSE`](LICENSE). The bundled alphabet images retain Mark
-Howarth's copyright and non-commercial-use terms; see
-[`ASSET_LICENSE.md`](ASSET_LICENSE.md).
-
-The use of AI assistance in modernizing this project is documented in
-[`aidecl.yml`](aidecl.yml), following the [AI Declaration](https://ai-declaration.org/)
-schema.
-
-## Browser app
-
-The static TypeScript/Mol* app is in [`web/`](web/README.md). It supports
-interactive protein words, normalized word PNGs, scene screenshots, and
-MolViewSpec downloads. See the web README for development and Pages deployment.
+`pnpm run measure:coordinates` refreshes the recorded source sizes,
+checksums, author CA ranges, and secondary-structure counts in
+`measurements/coordinates.json`. All 26 sources measured on 2026-09-30
+allowed cross-origin access (`*`), supplied helix/sheet annotations, and matched
+the manifest CA ranges for every selected chain. Whole-chain selection therefore
+reproduces those author ranges. Total decoded BCIF download size was 20.90 MB;
+O alone was 5.58 MB. Per-request measurements ranged from 119 to 1427 ms on this
+development connection; other networks and devices will differ. Remote delivery
+remains the default; the hashes record measured data, not enforced coordinate pins.

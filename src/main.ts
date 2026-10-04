@@ -1,7 +1,7 @@
 import "./style.css";
 import "molstar/build/viewer/molstar.css";
-import rawManifest from "../../src/pdbwords/assets/manifest.json";
-import { createScene, validateManifest } from "./geometry";
+import rawManifest from "./manifest.json";
+import { createScene, validateManifest, wordsToLines } from "./geometry";
 import type { Background, Style } from "./geometry";
 import { CoordinateCache, createViewer, download, frame, image, loadScene, png } from "./renderer";
 import { WordExporter } from "./export";
@@ -12,13 +12,14 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <form id="form" class="controls">
         <div class="step"><span>01</span><h2>Write your words</h2></div>
         <label for="text">Your message</label><textarea id="text" maxlength="240" rows="4" spellcheck="false">PROTEIN</textarea>
-        <div class="hint">A–Z · spaces · new lines <span id="count">7 / 240</span></div>
+        <div class="hint">A–Z · 0–9 · spaces · new lines <span id="count">7 / 240</span></div>
         <div class="settings"><div><label for="wrap">Letters per line</label><input id="wrap" type="number" min="1" max="80" value="20" required></div><div><label for="style">Cartoon colors</label><select id="style"><option value="rainbow">Residue rainbow</option><option value="ocean">Ocean blue</option></select></div></div>
         <div class="spacing-setting"><label for="spacing">Letter spacing <output id="spacing-value" for="spacing">20%</output></label><input id="spacing" type="range" min="0" max="100" step="5" value="20" aria-describedby="spacing-help"><p id="spacing-help" class="small">Slide to spread the protein letters apart.</p></div>
         <label for="background">Background</label><select id="background"><option value="white">Paper white</option><option value="#101c27">Midnight</option><option value="transparent">Transparent</option></select>
         <button class="primary" id="render" type="submit">Render protein words <span>→</span></button>
         <button id="example" class="example" type="button">Try all letters (A–Z)</button>
-        <p class="small">Punctuation appears in the word PNG. The interactive view shows protein letters only.</p>
+        <button id="digit-example" class="example" type="button">Try all digits (0–9)</button>
+        <p class="small">Punctuation appears in the word PNG. The interactive view shows protein letters and digits.</p>
         <div class="export-panel"><div class="step"><span>02</span><h2>Make it yours</h2></div>
           <label for="resolution">PNG dimensions</label><select id="resolution"><option value="1600,900">1600 × 900</option><option value="2400,1350">2400 × 1350</option><option value="1200,1200">1200 × 1200</option></select>
           <button type="button" id="word" disabled>↓ Download word PNG</button><button type="button" id="screenshot" disabled>↓ Download scene PNG</button><button type="button" id="mvs" disabled>↓ Download MolViewSpec</button>
@@ -35,6 +36,7 @@ const status = get<HTMLParagraphElement>("status");
 const controls = ["word", "screenshot", "mvs", "reset"].map((id) => get<HTMLButtonElement>(id));
 const renderButton = get<HTMLButtonElement>("render");
 const cache = new CoordinateCache();
+let manifest: ReturnType<typeof validateManifest>;
 let generation = 0,
   busy = false;
 let completed: ReturnType<typeof createScene> | undefined;
@@ -79,6 +81,11 @@ get("example").addEventListener("click", () => {
   invalidate();
   scheduleRender();
 });
+get("digit-example").addEventListener("click", () => {
+  text.value = "01234\n56789";
+  invalidate();
+  scheduleRender();
+});
 
 async function render() {
   if (busy || !viewer) return;
@@ -88,7 +95,11 @@ async function render() {
   enabled();
   renderButton.disabled = true;
   try {
-    const manifest = validateManifest(rawManifest);
+    wordsToLines(text.value, settings().maxChars);
+    await cache.resolveDigits(manifest, text.value, (value) => {
+      if (version === generation) message(value);
+    });
+    if (version !== generation) return;
     const result = createScene(text.value, manifest, settings());
     const prepared = await cache.prepare(result.scene, (value) => {
       if (version === generation) message(value);
@@ -103,7 +114,7 @@ async function render() {
     completed = result;
     const count = Object.values(result.layout.placed).reduce((n, points) => n + points.length, 0);
     message(
-      `${count} protein letters ready.${result.omitted.length ? ` Punctuation omitted from 3D: ${result.omitted.join(" ")}` : ""}`,
+      `${count} protein ${/[0-9]/.test(text.value) ? "characters" : "letters"} ready.${result.omitted.length ? ` Punctuation omitted from 3D: ${result.omitted.join(" ")}` : ""}`,
     );
     const structures = get("structures");
     structures.replaceChildren();
@@ -188,7 +199,8 @@ get("screenshot").addEventListener("click", () => {
 async function initialize() {
   renderButton.disabled = true;
   try {
-    const manifest = validateManifest(rawManifest);
+    const validated = validateManifest(rawManifest);
+    manifest = { ...validated, letters: { ...validated.letters } };
     viewer = await createViewer(get("viewer"));
     exporter = new WordExporter(manifest, cache);
     renderButton.disabled = false;

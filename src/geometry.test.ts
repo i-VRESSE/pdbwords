@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import manifestData from "../../src/pdbwords/assets/manifest.json";
-import fixtures from "./fixtures/python-scenes.json";
+import manifestData from "./manifest.json";
 import {
   colorNodes,
   createScene,
@@ -9,28 +8,10 @@ import {
   validateManifest,
   wordsToLines,
 } from "./geometry";
-import type { SceneNode } from "./geometry";
 const manifest = validateManifest(manifestData);
 const settings = { maxChars: 20, background: "white", style: "rainbow" } as const;
 
-describe("Python scene parity", () => {
-  for (const fixture of fixtures)
-    it(fixture.words.join(" "), () => {
-      const result = createScene(fixture.words.join(" "), manifest, {
-        ...settings,
-        maxChars: fixture.maxChars,
-      });
-      const downloads = (nodes: SceneNode[]) => nodes.filter((n) => n.kind === "download");
-      const normalize = (value: unknown): unknown =>
-        JSON.parse(
-          JSON.stringify(value, (_key, v: unknown) =>
-            typeof v === "number" ? Math.round(v * 1e8) / 1e8 : v,
-          ),
-        );
-      expect(normalize(downloads(result.scene.root.children!))).toEqual(
-        normalize(downloads(fixture.scene.root.children)),
-      );
-    });
+describe("scene geometry", () => {
   it("keeps column-major rotations and subtracts the projected center", () => {
     const letter = manifest.letters.B;
     expect(matrix(letter, [30, -20])).toEqual([
@@ -84,8 +65,12 @@ describe("text and validation", () => {
     expect(wordsToLines("")).toEqual([[]]);
     expect(wordsToLines("LONGWORD", 2)).toEqual([["LONGWORD"]]);
   });
-  it("rejects digits, unsupported text, and invalid layout", () => {
-    for (const input of ["A2", "A٢", "é", "<script>"]) expect(() => wordsToLines(input)).toThrow();
+  it("accepts ASCII digits and wraps mixed messages", () => {
+    expect(wordsToLines("0123456789")).toEqual([["0123456789"]]);
+    expect(wordsToLines("A2 B3\n2026 xLBx 42!", 4)).toEqual([["A2"], ["B3"], ["2026"], ["42!"]]);
+  });
+  it("rejects unsupported text and invalid layout", () => {
+    for (const input of ["A٢", "A２", "é", "<script>"]) expect(() => wordsToLines(input)).toThrow();
     expect(() => wordsToLines("A", 0)).toThrow();
     expect(() => createScene("?!", manifest, settings)).toThrow(/letter/);
   });
@@ -106,5 +91,8 @@ describe("text and validation", () => {
     const range = structuredClone(manifest);
     range.letters.A.chains.A = [10, 1];
     expect(() => validateManifest(range)).toThrow(/residue range/);
+    const digit = structuredClone(manifest);
+    digit.digits!["0"].camera = { position: [0, 0, 0], target: [0, 0, 0], up: [0, 1, 0] };
+    expect(() => validateManifest(digit)).toThrow(/digits.0.camera/);
   });
 });

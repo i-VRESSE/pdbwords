@@ -1,10 +1,3 @@
-# /// script
-# requires-python = ">=3.11,<3.14"
-# dependencies = [
-#   "pillow>=11.0",
-#   "pymol-open-source==3.2.0a0",
-# ]
-# ///
 """Extract reproducible letter geometry metadata from the PyMOL sessions."""
 
 from __future__ import annotations
@@ -12,24 +5,20 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 
 from PIL import Image
-from pymol import cmd
 
-# This repository script reuses the packaged builder without requiring an
-# editable installation in uv's isolated script environment.
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pdbwords.build_letters import (  # type: ignore[import-not-found]  # noqa: E402
+from build_letters import (
     ALPHABET,
     download_archive,
     prepare_sessions,
 )
 
-ASSET_DIRECTORY = Path(__file__).resolve().parent / "pdbwords/assets"
+REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
+ASSET_DIRECTORY = REPOSITORY_ROOT / "assets"
 
 
 def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
@@ -43,7 +32,7 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=ASSET_DIRECTORY / "manifest.json",
+        default=REPOSITORY_ROOT / "src/manifest.json",
         help="manifest destination",
     )
     return parser.parse_args(arguments)
@@ -74,6 +63,8 @@ def image_advance(directory: Path, letter: str) -> float:
 
 
 def session_metadata(session: Path, image_directory: Path, letter: str) -> dict:
+    from pymol import cmd
+
     cmd.reinitialize()
     cmd.load(str(session))
     objects = [
@@ -131,15 +122,18 @@ def main(arguments: Sequence[str] | None = None) -> int:
             for letter in ALPHABET
         }
 
-    manifest = {
-        "version": 1,
-        "source": "https://www.howarthgroup.org/alphabet",
-        "description": "Geometry extracted from the official PyMOL sessions.",
-        "cap_height": 10.0,
-        "line_height": 12.0,
-        "space_advance": 6.76,
-        "letters": letters,
-    }
+    manifest = json.loads(args.output.read_text()) if args.output.exists() else {}
+    manifest.update(
+        {
+            "version": 1,
+            "source": "https://www.howarthgroup.org/alphabet",
+            "description": "Geometry extracted from the official PyMOL sessions.",
+            "cap_height": 10.0,
+            "line_height": 12.0,
+            "space_advance": 6.76,
+            "letters": letters,
+        }
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, indent=2) + "\n")
     print(f"Wrote {args.output}")

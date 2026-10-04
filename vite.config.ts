@@ -11,13 +11,24 @@ export default defineConfig({
           this.emitFile({
             type: "asset",
             fileName: name,
-            source: await readFile(new URL(`../${name}`, import.meta.url), "utf8"),
+            source: await readFile(new URL(`./${name}`, import.meta.url), "utf8"),
           });
         }
       },
     },
   ],
   test: { include: ["src/**/*.test.ts"] },
-  lint: { ignorePatterns: ["dist/**"], options: { typeAware: true, typeCheck: true } },
-  fmt: { ignorePatterns: ["dist/**", "pnpm-lock.yaml"] },
+  lint: {
+    ignorePatterns: ["dist/**", "test-results/**", "playwright-report/**"],
+    options: { typeAware: true, typeCheck: true },
+  },
+  fmt: {
+    ignorePatterns: [
+      "dist/**",
+      "test-results/**",
+      "playwright-report/**",
+      "pnpm-lock.yaml",
+      "uv.lock",
+    ],
+  },
 });

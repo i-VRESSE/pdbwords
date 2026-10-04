@@ -7,22 +7,26 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 12.4.1
+          version: 12.9.1
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
           cache: pnpm
-          cache-dependency-path: web/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vp check
       - run: pnpm exec vp test run
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check scripts
+      - run: uv run ruff format --check scripts
+      - run: uv run pytest
       - run: pnpm exec vp build
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm exec playwright test
@@ -30,4 +34,4 @@ jobs:
         if: failure()
         with:
           name: browser-test-results
-          path: web/test-results/
+          path: test-results/
