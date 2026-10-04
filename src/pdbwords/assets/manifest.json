@@ -1677,8 +1677,8 @@
       }
     },
     "8": {
-      "pdb_id": "8G2Z",
-      "assembly": "1",
+      "pdb_id": "3PON",
+      "assembly": "3",
       "model": 1,
       "selection": "polymer.protein",
       "view": "side",
@@ -1686,65 +1686,67 @@
       "review": {
         "status": "accepted",
         "reviewer": "user",
-        "notes": "User selected candidate 4 on the digit 8 template contact sheet."
+        "notes": "User selected the high-resolution 3PON assembly 3 side-view preview as digit 8, replacing 8G2Z. Approval applies to this exact view, with no additional rotation."
       },
       "camera": {
         "mode": "orthographic",
         "fov": 1.5707963267948966,
         "position": [
-          350.7461591233016,
-          341.98716115812977,
-          749.008133653445
+          -44.55143576005815,
+          -2.3392942836524018,
+          33.049165969854485
         ],
         "up": [
-          -0.995954478506913,
-          -0.08984162859717507,
-          0.0017772205913970693
+          -0.4126124896965278,
+          -7.430014988345477e-18,
+          -0.9109066545735809
         ],
         "target": [
-          349.3705433736917,
-          349.48878930447245,
-          357.3335266292344
+          -0.9394103200527968,
+          -2.339294283652406,
+          13.294269782458883
         ],
-        "radius": 391.748853898906,
-        "radiusMax": 391.748853898906,
+        "radius": 45.139435199089995,
+        "radiusMax": 45.139435199089995,
         "fog": 30,
         "clipFar": true,
         "minNear": 0,
         "minFar": 0
       },
       "source": {
-        "id": "8g2z_assembly_1_chain_side",
-        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/8g2z_assembly_1_chain_side_image-200x200.png",
-        "image_sha256": "e032b055227284d302cd6de1e2df1bf64307a993a00ecc19c2081844fcd94eaf",
-        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/8g2z_assembly_1_chain_side.molj",
-        "state_sha256": "2f005fc2d71c1cca206146d488c6c2baee63326eca49d30d83aa3a0f75419c07",
+        "id": "3pon_assembly_3_chain_side",
+        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/3pon_assembly_3_chain_side_image-800x800.png",
+        "image_sha256": "8fd1c6f15520aa6476c82a89cc71fb1067a6fd2869c9e650cff60e23cff80ccf",
+        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/3pon_assembly_3_chain_side.molj",
+        "state_sha256": "ec8c59707cbf74bc33c9fa17176fb87dc6796bfc296c28f9741c8675fa20fe0c",
         "camera": {
           "mode": "orthographic",
           "fov": 1.5707963267948966,
           "position": [
-            350.7461591233016,
-            341.98716115812977,
-            749.008133653445
+            -44.55143576005815,
+            -2.3392942836524018,
+            33.049165969854485
           ],
           "up": [
-            -0.995954478496779,
-            -0.08984162865243804,
-            0.001777223476786245
+            -0.4126124896965278,
+            -7.430014988345477e-18,
+            -0.9109066545735809
           ],
           "target": [
-            349.3705433736917,
-            349.48878930447245,
-            357.3335266292344
+            -0.9394103200527968,
+            -2.339294283652406,
+            13.294269782458883
           ],
-          "radius": 391.748853898906,
-          "radiusMax": 391.748853898906,
+          "radius": 45.139435199089995,
+          "radiusMax": 45.139435199089995,
           "fog": 30,
           "clipFar": true,
           "minNear": 0,
           "minFar": 0
         },
-        "coordinates_url": "https://files.rcsb.org/download/8g2z-assembly1.cif"
+        "coordinates_url": "https://files.rcsb.org/download/3pon-assembly3.cif",
+        "source_preview": "search-8-small/high-resolution/3pon-assembly3-side.png",
+        "preview_sha256": "fb940154bd4157ee38b1773d17569e8203c08d6af97a730ff2e2707d6cd87acd"
       }
     },
     "9": {
