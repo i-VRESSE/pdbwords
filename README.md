@@ -145,6 +145,8 @@ non-commercial terms; see `ASSET_LICENSE.md` and the
 Coordinates are credited to RCSB PDB and the original structure authors via
 linked source PDB IDs. Mol* is MIT licensed.
 
+New digits where found using the https://github.com/i-VRESSE/pdbwords/blob/digits/docs/digit-search.md, which can be used to find  renew/different characters.
+
 ## Coordinate measurements
 
 `pnpm run measure:coordinates` refreshes the recorded source sizes,
