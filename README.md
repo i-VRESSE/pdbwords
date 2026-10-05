@@ -2,7 +2,7 @@
 
 ![The pdbwords app rendering “pdbwords” with protein structures](docs/images/pdbwords-app.png)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23161335.svg)](https://doi.org/10.5281/zenodo.23161335)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23161334.svg)](https://doi.org/10.5281/zenodo.23161334)
 
 Write messages with protein letters and digits in a static TypeScript app using
 Mol* and MolViewSpec. The app renders interactive molecular scenes and exports
