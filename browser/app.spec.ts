@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 test("renders letters, caches repeated coordinates, and exports both PNGs and MVSJ", async ({
   page,
 }) => {
+  // Software WebGL on CI renders several PNGs and the full alphabet in this test.
+  test.setTimeout(360000);
   // Fetch real coordinates through the runner to avoid host browser proxy differences.
   await page.route(/https:\/\/(models|files)\.rcsb\.org\//, async (route) => {
     const response = await fetch(route.request().url(), { signal: AbortSignal.timeout(60000) });
@@ -33,12 +35,14 @@ test("renders letters, caches repeated coordinates, and exports both PNGs and MV
   await expect(page.locator("#structures")).toContainText("6 · 5J4A");
   await page.locator("#reset").click();
   for (const id of ["mvs", "screenshot", "word"]) {
-    const pending = page.waitForEvent("download");
-    await page.locator(`#${id}`).click();
-    const file = await pending;
-    expect(await file.failure()).toBeNull();
-    expect(file.suggestedFilename()).toMatch(id === "mvs" ? /\.mvsj$/ : /\.png$/);
-    await expect(page.locator("#status")).not.toContainText("Export failed");
+    await test.step(`Export ${id}`, async () => {
+      const pending = page.waitForEvent("download");
+      await page.locator(`#${id}`).click();
+      const file = await pending;
+      expect(await file.failure()).toBeNull();
+      expect(file.suggestedFilename()).toMatch(id === "mvs" ? /\.mvsj$/ : /\.png$/);
+      await expect(page.locator("#status")).not.toContainText("Export failed");
+    });
   }
   await page.getByRole("button", { name: "Try all letters (A–Z)" }).click();
   await expect(page.locator("#text")).toHaveValue("ABCDEFG\nHIJKLMN\nOPQRSTU\nVWXYZ");

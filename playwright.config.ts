@@ -20,7 +20,14 @@ export default defineConfig({
         },
       },
     },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    {
+      name: "firefox",
+      use: {
+        ...devices["Desktop Firefox"],
+        // CI provides Xvfb so Firefox can initialize Mesa software WebGL.
+        headless: !process.env.CI,
+      },
+    },
     { name: "mobile", use: { ...devices["iPhone 13"] } },
   ],
 });
