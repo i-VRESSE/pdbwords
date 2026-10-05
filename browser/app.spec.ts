@@ -23,7 +23,9 @@ test("renders letters, caches repeated coordinates, and exports both PNGs and MV
   });
   await page.goto("./");
   await expect(page.locator("#status")).toContainText("protein letters ready", { timeout: 120000 });
-  await page.locator("#text").fill("ABDO AA\nHELLO 36!");
+  // Cover repeats, wrapping, digits and punctuation with fewer export tiles.
+  // The full alphabet is rendered below without exporting every letter again.
+  await page.locator("#text").fill("ABDO AA\n36!");
   await expect(page.locator("#word")).toBeDisabled();
   await page.locator("#render").click();
   await expect(page.locator("#status")).toContainText("Punctuation omitted from 3D: !", {

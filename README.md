@@ -102,7 +102,9 @@ Tests use the production `/pdbwords/` subpath, render A/B/D/O, digits 3/6, and A
 both PNGs and MVSJ, and cover network and WebGL failures. Chromium, Firefox and
 mobile WebKit are configured. The live coordinate integration tests require
 RCSB access. `CHROMIUM_PATH` can select an existing Chromium executable.
-On Linux CI, Firefox runs with a virtual display and Mesa software rendering:
+CI installs and runs only Chromium (`--project=chromium`). To run all browser
+projects with CI settings on Linux, provide a virtual display for Firefox and
+Mesa software rendering:
 
 ```sh
 CI=true LIBGL_ALWAYS_SOFTWARE=1 xvfb-run --auto-servernum pnpm exec playwright test
