@@ -3,11 +3,12 @@ message: "If you use this software, please cite it using this metadata."
 title: pdbwords
 abstract: "Write text using Mark Howarth's protein alphabet."
 type: software
-version: 0.2.0
-date-released: 2026-09-29
 license: GPL-3.0-or-later
 repository-code: "https://github.com/i-VRESSE/pdbwords"
-url: "https://www.howarthgroup.org/alphabet"
+identifiers:
+  - description: Latest version of software
+    type: doi
+    value: 10.5281/zenodo.23161334
 authors:
   - family-names: Lindorff-Larsen
     given-names: Kresten
