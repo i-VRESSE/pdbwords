@@ -30,12 +30,19 @@ def parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         "--images", type=Path, default=ASSET_DIRECTORY, help="letter tile directory"
     )
     parser.add_argument(
+        "--letters", default=ALPHABET, help="letters to refresh (default: A-Z)"
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=REPOSITORY_ROOT / "src/manifest.json",
         help="manifest destination",
     )
-    return parser.parse_args(arguments)
+    args = parser.parse_args(arguments)
+    args.letters = "".join(dict.fromkeys(args.letters.upper()))
+    if not args.letters or any(letter not in ALPHABET for letter in args.letters):
+        parser.error("--letters must contain only letters A-Z")
+    return args
 
 
 def transform_coordinate(
@@ -77,7 +84,7 @@ def session_metadata(session: Path, image_directory: Path, letter: str) -> dict:
 
     object_name = objects[0]
     # Several official sessions hide whole chains to form a letter (notably D,
-    # E, and O). Their coordinates still exist in the loaded molecule. Extract
+    # E, O, P, and S). Their coordinates still exist in the loaded molecule. Extract
     # the displayed cartoon rather than every protein chain in that object.
     model = cmd.get_model(f"{object_name} and polymer.protein and rep cartoon")
     view = cmd.get_view()
@@ -116,13 +123,14 @@ def main(arguments: Sequence[str] | None = None) -> int:
     args = parse_args(arguments)
     archive = args.sessions or download_archive(Path("build/AlphabetPDB.zip"))
     with tempfile.TemporaryDirectory(prefix="pdbwords-sessions-") as temporary:
-        sessions = prepare_sessions(Path(archive), Path(temporary), ALPHABET)
+        sessions = prepare_sessions(Path(archive), Path(temporary), args.letters)
         letters = {
             letter: session_metadata(sessions / f"{letter}.pse", args.images, letter)
-            for letter in ALPHABET
+            for letter in args.letters
         }
 
     manifest = json.loads(args.output.read_text()) if args.output.exists() else {}
+    letters = {**manifest.get("letters", {}), **letters}
     manifest.update(
         {
             "version": 1,

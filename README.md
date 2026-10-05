@@ -42,7 +42,7 @@ The app imports `src/manifest.json` directly; there is no
 second geometry manifest. It preserves the Python column-major transforms,
 whole-word wrapping, line spacing, author chain identifiers and residue color
 ranges. The extractor selects only protein atoms shown as cartoons in the
-original sessions: hidden chains are excluded, including for D, E, and O.
+original sessions: hidden chains are excluded, including for D, E, O, P, and S.
 Newlines and the case-sensitive `xLBx` token are line breaks. Letters A–Z and
 digits 0–9 are supported; characters outside these, whitespace, and `.,:!?-`
 produce explicit errors.
@@ -128,7 +128,8 @@ uv run ruff check scripts
 The `assets:build`, `manifest:extract`, and `test:python` pnpm scripts delegate to
 uv as conveniences. Both maintenance scripts default to root `assets/` and
 `src/manifest.json`. The extractor updates A–Z geometry while preserving manually
-reviewed digit entries. Original letter PNGs supply spacing measurements;
+reviewed digit entries. Pass `--letters PS` to refresh only P and S while preserving
+the other letters. Original letter PNGs supply spacing measurements;
 punctuation PNGs are used by the browser. Alternative PyMOL themes remain
 maintainer reference assets. There is no Python CLI, wheel, or PyPI publication.
 
