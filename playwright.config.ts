@@ -3,6 +3,7 @@ export default defineConfig({
   testDir: "./browser",
   timeout: 180000,
   workers: 1,
+  reporter: [["list", { printSteps: true }]],
   use: { baseURL: "http://127.0.0.1:4173/pdbwords/", acceptDownloads: true },
   webServer: {
     command: "pnpm exec vp preview --host 127.0.0.1 --port 4173",

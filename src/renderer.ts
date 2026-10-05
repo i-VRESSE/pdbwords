@@ -202,6 +202,9 @@ export async function image(
   pass.setProps({
     transparentBackground: transparent,
     cameraHelper: { axes: { name: "off", params: {} } },
+    // Four jittered samples keep real antialiased alpha without redrawing the
+    // scene sixteen times. Occlusion is unchanged between these small offsets.
+    multiSample: { ...pass.props.multiSample, sampleLevel: 2, reuseOcclusion: true },
   });
   const pixels = await pass.getImageData(RuntimeContext.Synchronous, width, height);
   const canvas = document.createElement("canvas");
