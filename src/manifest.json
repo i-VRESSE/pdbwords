@@ -464,53 +464,50 @@
       }
     },
     "1": {
-      "pdb_id": "9UVT",
+      "pdb_id": "9GCK",
       "assembly": "1",
       "model": 1,
       "selection": "polymer.protein",
-      "view": "front",
-      "rotation_clockwise_deg": 70,
+      "view": "side",
+      "rotation_clockwise_deg": 0,
       "review": {
         "status": "accepted",
         "reviewer": "user",
-        "notes": "User approved the first preview offered for digit 1: digit-pilot/expanded-search/large-previews/1-06-9uvt.png. Approval applies to this exact saved view and clockwise rotation."
+        "notes": "User requested swapping digits 1 and 7 and correcting their rotations. This structure was previously assigned to 7; now assigned to 1 with 0 degrees clockwise rotation from the source camera."
       },
       "camera": {
         "mode": "orthographic",
         "fov": 1.5707963267948966,
-        "position": [47.58641792443524, 148.35071401267172, 92.10508837293081],
-        "up": [0.2442977634493734, 0.30059135194492953, -0.9219346191078592],
-        "target": [94.87178938441862, 99.03179697426758, 88.55480466555218],
-        "radius": 68.4168579105506,
-        "radiusMax": 68.4168579105506,
+        "position": [136.6979173948778, 112.11827810218429, 209.95913371546288],
+        "up": [-0.28103440073294467, -0.923416005604063, -0.2613858186645037],
+        "target": [141.2633314115986, 133.73743631501046, 128.6750203411774],
+        "radius": 84.2338298667404,
+        "radiusMax": 84.2338298667404,
         "fog": 30,
         "clipFar": true,
         "minNear": 0,
         "minFar": 0
       },
       "source": {
-        "id": "9uvt_assembly_1_chain_front",
-        "preview_path": "digit-pilot/expanded-search/large-previews/1-06-9uvt.png",
-        "preview_sha256": "8c8b3f470fe088c8699ab0a01decca1ced02d2a97c270ad45f02b2ad22f1d84e",
-        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/9uvt_assembly_1_chain_front_image-200x200.png",
-        "image_sha256": "29e72b1a396abca5fb1fc872180b806375594016b77344d67bdef1021864561c",
-        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/9uvt_assembly_1_chain_front.molj",
-        "state_sha256": "8dd87b04f76847d676e8175424c9b83b901c32d7e0e3d5758c37a2d9e940a48b",
+        "id": "9gck_assembly_1_chain_side",
+        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/9gck_assembly_1_chain_side_image-200x200.png",
+        "image_sha256": "9c42e88a509ba122091bd35a3de2f92813e8b6e6810e90f97c28b4dcf451c131",
+        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/9gck_assembly_1_chain_side.molj",
+        "state_sha256": "0bf0e6c7b141349db7e9ffa411e77769b5ee5b4e66f4182f99019e844f55ead0",
         "camera": {
           "mode": "orthographic",
           "fov": 1.5707963267948966,
-          "position": [47.58641792443524, 148.35071401267172, 92.10508837293081],
-          "up": [0.7227179750731947, 0.689651348473757, 0.04538442524073151],
-          "target": [94.87178938441862, 99.03179697426758, 88.55480466555218],
-          "radius": 68.4168579105506,
-          "radiusMax": 68.4168579105506,
+          "position": [136.6979173948778, 112.11827810218429, 209.95913371546288],
+          "up": [-0.28103440073294467, -0.923416005604063, -0.2613858186645037],
+          "target": [141.2633314115986, 133.73743631501046, 128.6750203411774],
+          "radius": 84.2338298667404,
+          "radiusMax": 84.2338298667404,
           "fog": 30,
           "clipFar": true,
           "minNear": 0,
           "minFar": 0
         },
-        "coordinates_url": "https://files.rcsb.org/download/9uvt-assembly1.cif",
-        "coordinates_sha256": "52919271eab7aa4a99513f9a7c1d6372d414dc74dd5e4907b565d7e39dd853e7"
+        "coordinates_url": "https://files.rcsb.org/download/9gck-assembly1.cif"
       }
     },
     "2": {
@@ -744,50 +741,53 @@
       }
     },
     "7": {
-      "pdb_id": "9GCK",
+      "pdb_id": "9UVT",
       "assembly": "1",
       "model": 1,
       "selection": "polymer.protein",
-      "view": "side",
-      "rotation_clockwise_deg": 20,
+      "view": "front",
+      "rotation_clockwise_deg": 110,
       "review": {
         "status": "accepted",
         "reviewer": "user",
-        "notes": "User selected candidate 3 from the digit 1 template contact sheet as digit 7 after a 20-degree clockwise rotation of the side view. Readability approval applies to the rotated view."
+        "notes": "User requested swapping digits 1 and 7 and correcting their rotations. This structure was previously assigned to 1; now assigned to 7 with 110 degrees clockwise rotation from the source camera."
       },
       "camera": {
         "mode": "orthographic",
         "fov": 1.5707963267948966,
-        "position": [136.6979173948778, 112.11827810218429, 209.95913371546288],
-        "up": [0.06362612382936067, -0.9653260763540072, -0.2531744115771345],
-        "target": [141.2633314115986, 133.73743631501046, 128.6750203411774],
-        "radius": 84.2338298667404,
-        "radiusMax": 84.2338298667404,
+        "position": [47.58641792443524, 148.35071401267172, 92.10508837293081],
+        "up": [-0.2500704381080976, -0.17115796383329168, -0.9529793950557727],
+        "target": [94.87178938441862, 99.03179697426758, 88.55480466555218],
+        "radius": 68.4168579105506,
+        "radiusMax": 68.4168579105506,
         "fog": 30,
         "clipFar": true,
         "minNear": 0,
         "minFar": 0
       },
       "source": {
-        "id": "9gck_assembly_1_chain_side",
-        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/9gck_assembly_1_chain_side_image-200x200.png",
-        "image_sha256": "9c42e88a509ba122091bd35a3de2f92813e8b6e6810e90f97c28b4dcf451c131",
-        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/9gck_assembly_1_chain_side.molj",
-        "state_sha256": "0bf0e6c7b141349db7e9ffa411e77769b5ee5b4e66f4182f99019e844f55ead0",
+        "id": "9uvt_assembly_1_chain_front",
+        "preview_path": "digit-pilot/expanded-search/large-previews/1-06-9uvt.png",
+        "preview_sha256": "8c8b3f470fe088c8699ab0a01decca1ced02d2a97c270ad45f02b2ad22f1d84e",
+        "image_url": "https://www.ebi.ac.uk/pdbe/static/entry/9uvt_assembly_1_chain_front_image-200x200.png",
+        "image_sha256": "29e72b1a396abca5fb1fc872180b806375594016b77344d67bdef1021864561c",
+        "state_url": "https://www.ebi.ac.uk/pdbe/static/entry/9uvt_assembly_1_chain_front.molj",
+        "state_sha256": "8dd87b04f76847d676e8175424c9b83b901c32d7e0e3d5758c37a2d9e940a48b",
         "camera": {
           "mode": "orthographic",
           "fov": 1.5707963267948966,
-          "position": [136.6979173948778, 112.11827810218429, 209.95913371546288],
-          "up": [-0.28103440073294467, -0.923416005604063, -0.2613858186645037],
-          "target": [141.2633314115986, 133.73743631501046, 128.6750203411774],
-          "radius": 84.2338298667404,
-          "radiusMax": 84.2338298667404,
+          "position": [47.58641792443524, 148.35071401267172, 92.10508837293081],
+          "up": [0.7227179750731947, 0.689651348473757, 0.04538442524073151],
+          "target": [94.87178938441862, 99.03179697426758, 88.55480466555218],
+          "radius": 68.4168579105506,
+          "radiusMax": 68.4168579105506,
           "fog": 30,
           "clipFar": true,
           "minNear": 0,
           "minFar": 0
         },
-        "coordinates_url": "https://files.rcsb.org/download/9gck-assembly1.cif"
+        "coordinates_url": "https://files.rcsb.org/download/9uvt-assembly1.cif",
+        "coordinates_sha256": "52919271eab7aa4a99513f9a7c1d6372d414dc74dd5e4907b565d7e39dd853e7"
       }
     },
     "8": {
