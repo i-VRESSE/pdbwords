@@ -98,6 +98,16 @@ pnpm run discover --workdir digit-pilot sheets --top 12
 pnpm run discover:angles --workdir digit-pilot --characters 'AB4?' --step 15
 ```
 
+CLIP ranking uses the `vision` extra and downloads model weights on first use:
+
+```sh
+uv run --locked --extra vision python scripts/character_search.py rank --characters 'AB4?' --vision-model openai/clip-vit-base-patch32
+pnpm run discover sheets --method vision_glyph --top 12
+```
+
+`--vision-model` also accepts a local model directory. For cached runs, place
+`--offline` before `rank`; CUDA is used when available.
+
 See [character-search.md](docs/character-search.md) for review, caching, fonts,
 and optional vision scoring. Global options precede the subcommand.
 `digit-pilot/` is the ignored default cache; discovery does not modify the app.

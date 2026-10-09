@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["pillow>=11.0"]
-# ///
 """Search character shapes across rigid rotations of cached PDBe assembly views."""
 
 from __future__ import annotations

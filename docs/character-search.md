@@ -45,16 +45,16 @@ The equivalent pnpm shortcuts are `pnpm run discover` and
 From the repository, run:
 
 ```console
-uv run --script scripts/character_search.py collect --count 10 --workers 2
-uv run --script scripts/character_search.py rank
-uv run --script scripts/character_search.py sheets --top 12
+uv run python scripts/character_search.py collect --count 10 --workers 2
+uv run python scripts/character_search.py rank
+uv run python scripts/character_search.py sheets --top 12
 ```
 
 The default working directory is `digit-pilot/`, which is excluded from Git and
 package assets. Global options must precede the subcommand. For example:
 
 ```console
-uv run --script scripts/character_search.py --workdir digit-pilot --offline collect --count 10
+uv run python scripts/character_search.py --workdir digit-pilot --offline collect --count 10
 ```
 
 The RCSB query requests experimentally determined protein polymer entities and
@@ -120,13 +120,14 @@ The baseline's `none` score is `1 - best glyph IoU`, an explicit abstention
 heuristic. These scores are not probabilities or acceptance decisions.
 
 An optional local CLIP backend scores both cartoons and silhouettes, including
-a text prompt for no recognizable character. Install its additional
-dependencies only when actually comparing a vision model:
+a text prompt for no recognizable character. Its dependencies are declared in
+the project's `vision` extra:
 
 ```console
-uv run --with torch --with transformers python scripts/character_search.py rank --vision-model /path/to/cached/clip-model
-uv run --script scripts/character_search.py sheets --method vision_cartoon --top 12
-uv run --script scripts/character_search.py sheets --method vision_silhouette --top 12
+uv sync --locked --extra vision
+uv run --extra vision python scripts/character_search.py rank --vision-model /path/to/cached/clip-model
+uv run python scripts/character_search.py sheets --method vision_cartoon --top 12
+uv run python scripts/character_search.py sheets --method vision_silhouette --top 12
 ```
 
 A Hugging Face model identifier also works, but requires downloading model
@@ -171,7 +172,7 @@ Merge judgments from different methods into one CSV, with one row per
 character/candidate pair, to compare against a common reference. Then run:
 
 ```console
-uv run --script scripts/character_search.py benchmark --reviews digit-pilot/sheets/template/reviews.csv --top 12
+uv run python scripts/character_search.py benchmark --reviews digit-pilot/sheets/template/reviews.csv --top 12
 ```
 
 `benchmark.json` reports review coverage, readable counts, and precision at k
@@ -184,7 +185,7 @@ An empty review CSV adds no approvals.
 Fetch saved states and captions only for promising candidates:
 
 ```console
-uv run --script scripts/character_search.py fetch-shortlist --shortlist digit-pilot/reviewed-shortlist.json --coordinates
+uv run python scripts/character_search.py fetch-shortlist --shortlist digit-pilot/reviewed-shortlist.json --coordinates
 ```
 
 `--coordinates` additionally caches RCSB biological assembly mmCIFs. Repeated
@@ -199,7 +200,7 @@ instead, or reduce that file to a few candidate IDs first.
 Search rigid in-plane rotations of the cached views for still-missing digits:
 
 ```console
-uv run --script scripts/character_angle_search.py --step 10 --output digit-pilot/angle-search
+uv run python scripts/character_angle_search.py --step 10 --output digit-pilot/angle-search
 ```
 
 This command skips digits already present in `reviewed-shortlist.json`, also

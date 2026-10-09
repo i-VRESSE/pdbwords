@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["pillow>=11.0"]
-# ///
 """Find protein structures shaped like characters using cached images and human review."""
 
 from __future__ import annotations
@@ -508,7 +504,7 @@ def clip_scores(
         from transformers import CLIPModel, CLIPProcessor
     except ImportError as error:
         raise ValueError(
-            "Vision ranking requires torch and transformers; see docs/character-search.md"
+            "Vision ranking requires the vision extra; run with uv run --extra vision"
         ) from error
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = (
