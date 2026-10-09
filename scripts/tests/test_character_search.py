@@ -11,7 +11,7 @@ import pytest
 from PIL import Image, ImageDraw
 
 SPEC = importlib.util.spec_from_file_location(
-    "digit_search", Path(__file__).parents[1] / "digit_search.py"
+    "character_search", Path(__file__).parents[1] / "character_search.py"
 )
 assert SPEC is not None and SPEC.loader is not None
 search = importlib.util.module_from_spec(SPEC)

@@ -508,7 +508,7 @@ def clip_scores(
         from transformers import CLIPModel, CLIPProcessor
     except ImportError as error:
         raise ValueError(
-            "Vision ranking requires torch and transformers; see docs/digit-search.md"
+            "Vision ranking requires torch and transformers; see docs/character-search.md"
         ) from error
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = (
@@ -929,7 +929,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         args.run(args)
     except (OSError, ValueError, KeyError) as error:
-        print(f"digit-search: {error}", file=sys.stderr)
+        print(f"character-search: {error}", file=sys.stderr)
         return 1
     return 0
 

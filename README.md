@@ -150,8 +150,8 @@ linked source PDB IDs. Mol* is MIT licensed.
 ## Find new character shapes
 
 Search for new protein structures resembling any individual character or a set
-of characters. The discovery scripts retain their historical `digit_*` names;
-`--characters` accepts letters, digits, and symbols, preserving case. For example:
+of characters. `--characters` accepts letters, digits, and symbols, preserving
+case. For example:
 
 ```sh
 pnpm run discover --workdir digit-pilot collect --count 100 --workers 4
@@ -168,7 +168,7 @@ shared across targets and cached for offline reuse. Search results require human
 review before adding structures and camera geometry to `src/manifest.json`.
 Discovery does not automatically add new characters to the webapp.
 
-[The discovery guide](docs/digit-search.md) covers caches, optional vision scoring,
+[The discovery guide](docs/character-search.md) covers caches, optional vision scoring,
 review CSVs, benchmarking, coordinate downloads, and the original digit search.
 
 ## Coordinate measurements

@@ -14,8 +14,8 @@
     "assets:build": "uv run python scripts/build_letters.py",
     "manifest:extract": "uv run python scripts/extract_manifest.py",
     "test:python": "uv run pytest",
-    "discover": "uv run python scripts/digit_search.py",
-    "discover:angles": "uv run python scripts/digit_angle_search.py"
+    "discover": "uv run python scripts/character_search.py",
+    "discover:angles": "uv run python scripts/character_angle_search.py"
   },
   "dependencies": {
     "molstar": "5.12.0"

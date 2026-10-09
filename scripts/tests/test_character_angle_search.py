@@ -13,8 +13,8 @@ def test_angle_search_preserves_inputs_and_excludes_approved(
     tmp_path, monkeypatch, targets, expected
 ):
     monkeypatch.syspath_prepend(str(Path(__file__).parents[1]))
-    import digit_angle_search as angles
-    import digit_search as search
+    import character_angle_search as angles
+    import character_search as search
 
     image = Image.new("RGB", (100, 100), "white")
     ImageDraw.Draw(image).text(
@@ -45,7 +45,7 @@ def test_angle_search_preserves_inputs_and_excludes_approved(
         sys,
         "argv",
         [
-            "digit_angle_search",
+            "character_angle_search",
             "--workdir",
             str(tmp_path),
             "--output",
@@ -73,8 +73,8 @@ def test_angle_search_preserves_inputs_and_excludes_approved(
 
 @pytest.mark.parametrize("targets", ["Q", "Qa?/"])
 def test_rotation_search_accepts_custom_characters_without_reviews(tmp_path, targets):
-    import digit_angle_search as angles
-    import digit_search as search
+    import character_angle_search as angles
+    import character_search as search
 
     image = Image.new("RGB", (100, 100), "white")
     ImageDraw.Draw(image).ellipse((25, 10, 75, 90), outline="blue", width=8)

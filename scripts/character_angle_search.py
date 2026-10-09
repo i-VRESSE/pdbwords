@@ -14,7 +14,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
-import digit_search as search
+import character_search as search
 
 
 def fit(mask: Image.Image) -> Image.Image:
