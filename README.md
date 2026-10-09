@@ -88,6 +88,9 @@ structures. Its automatic secondary-structure provider can compute DSSP for
 other atomic models, but does not guarantee a fallback for every experimental
 structure missing annotations. Source-coordinate changes can affect appearance.
 
+Developer setup, contribution checks, geometry maintenance, and instructions for
+regenerating these images are in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Validation
 
 Unit tests check text validation, scene geometry, saved camera orientations,

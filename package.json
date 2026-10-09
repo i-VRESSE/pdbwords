@@ -15,7 +15,8 @@
     "manifest:extract": "uv run python scripts/extract_manifest.py",
     "test:python": "uv run pytest",
     "discover": "uv run python scripts/character_search.py",
-    "discover:angles": "uv run python scripts/character_angle_search.py"
+    "discover:angles": "uv run python scripts/character_angle_search.py",
+    "images:readme": "node scripts/update-readme-images.mjs"
   },
   "dependencies": {
     "molstar": "5.12.0"
