@@ -10,7 +10,7 @@ word PNGs, scene PNGs, and portable MolViewSpec files.
 
 The original protein alphabet was curated by Mark Howarth, and the original
 program was written by Kresten Lindorff-Larsen in 2015. This repository now
-contains the JavaScript app; Python is used only for asset maintenance.
+contains the JavaScript app; Python is used for asset maintenance and character discovery.
 
 Use Node 24 and pnpm 12.9.1 (both pinned for CI):
 
@@ -147,7 +147,29 @@ non-commercial terms; see `ASSET_LICENSE.md` and the
 Coordinates are credited to RCSB PDB and the original structure authors via
 linked source PDB IDs. Mol* is MIT licensed.
 
-New digits where found using the https://github.com/i-VRESSE/pdbwords/blob/digits/docs/digit-search.md, which can be used to find renew/different characters.
+## Find new character shapes
+
+Search for new protein structures resembling any individual character or a set
+of characters. The discovery scripts retain their historical `digit_*` names;
+`--characters` accepts letters, digits, and symbols, preserving case. For example:
+
+```sh
+pnpm run discover --workdir digit-pilot collect --count 100 --workers 4
+pnpm run discover --workdir digit-pilot rank --characters 'AB4?'
+pnpm run discover --workdir digit-pilot sheets --top 12
+pnpm run discover:angles --workdir digit-pilot --characters 'AB4?' --step 15
+```
+
+Each glyph is a separate target, so `AB` searches for A and B. Use `--font PATH`
+with ranking and rotation search for characters requiring a particular font,
+including Unicode glyphs. Sheets and benchmarking default to the targets saved
+by `rank`; `--digits` remains a compatible digit-only option. Collection is
+shared across targets and cached for offline reuse. Search results require human
+review before adding structures and camera geometry to `src/manifest.json`.
+Discovery does not automatically add new characters to the webapp.
+
+[The discovery guide](docs/digit-search.md) covers caches, optional vision scoring,
+review CSVs, benchmarking, coordinate downloads, and the original digit search.
 
 ## Coordinate measurements
 
