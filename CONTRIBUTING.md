@@ -23,18 +23,6 @@ pnpm exec vp preview --host 127.0.0.1 --port 4173
 Preview URL: `http://127.0.0.1:4173/pdbwords/`. Rebuild after source changes.
 `PAGES_BASE` overrides the build's default `/pdbwords/` base.
 
-## Code map
-
-| Path                               | Purpose                                                        |
-| ---------------------------------- | -------------------------------------------------------------- |
-| `src/main.ts`, `src/style.css`     | UI and render lifecycle                                        |
-| `src/geometry.ts`                  | Validation, layout, MolViewSpec scenes                         |
-| `src/renderer.ts`, `src/digits.ts` | Mol* rendering, coordinate cache, assemblies, digit transforms |
-| `src/export.ts`                    | Word PNG composition                                           |
-| `src/manifest.json`                | Shared geometry and provenance                                 |
-| `scripts/`, `scripts/tests/`       | Maintenance, discovery, Python tests                           |
-| `src/*.test.ts`, `browser/`        | Unit and browser tests                                         |
-
 ## Checks
 
 ```sh
